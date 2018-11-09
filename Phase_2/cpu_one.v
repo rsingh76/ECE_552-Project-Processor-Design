@@ -79,6 +79,7 @@ wire [3:0] ID_EX_opcode;
 wire [3:0] ID_EX_imm_4bit;
 wire [15:0] sign_extend;
 wire [15:0] ID_EX_SrcData2;
+wire flag_br_checker;
 
 //Opcode assignment
 assign opcode = IF_ID_Inst[15:12];
@@ -132,7 +133,11 @@ ALU ALU_LW_SW(.Inst(ID_EX_opcode), .ALUIn1(SrcData1), .ALUIn2(ID_EX_SrcData2_or_
 //Writing Flag Registers
 assign flags_in = {Z, V, N};
 assign flag_wen = (opcode[3:1] == 3'b000) | (opcode == 4'b0010) | (opcode == 4'b0100) | (opcode == 4'b0101) | (opcode == 4'b0110);
-   //Flag Register
+
+//Flag_br_checker
+assign flag_br_checker = ((opcode[3:1] == 3'b110) && (IF_ID_Inst[11:9] != 3'b111)) ? 1'b1 : 1'b0;
+
+//Flag Register
 Flags flag(.flags_out(flags_out), .clk(clk), .rst(~rst_n), .wen(flag_wen), .flags_in(flags_in));
 
 //RegWrite == 1'b0 for SW, B, BR, HLT
