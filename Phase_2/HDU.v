@@ -1,0 +1,36 @@
+module HDU (IF_ID_Inst, ID_EX_MemRead, ID_EX_RegWrite, EX_MEM_RegWrite, EX_MEM_RdAddr, br_true, stall, IF_Flush, ID_Flush);
+
+input [15:0] IF_ID_Inst;
+input ID_EX_MemRead;
+input ID_EX_RegWrite;
+input EX_MEM_RegWrite;
+input [3:0] EX_MEM_RdAddr;
+input br_true;
+output stall;
+output IF_Flush;
+output ID_Flush;
+
+wire [3:0] IF_ID_RegisterRs;
+wire [3:0] IF_ID_RegisterRt;
+wire [3:0] ID_EX_RegisterRt;
+wire [3:0] ID_EX_RegisterRd;
+wire [3:0] EX_MEM_RegisterRd;
+
+assign IF_ID_RegisterRs = IF_ID_Inst[7:4];
+assign IF_ID_RegisterRt = (IF_ID_Inst[15:12] == 4'b1000 | IF_ID_Inst[15:12] == 4'b1001) ? IF_ID_Inst[11:8] : IF_ID_Inst[3:0];
+assign ID_EX_RegisterRt = ID_EX_MemRead ? IF_ID_Inst[11:8] : IF_ID_Inst[3:0];
+assign EX_MEM_RegisterRd = EX_MEM_RdAddr;
+//Data Hazard
+assign ID_Flush = (IF_ID_Inst[15] == 1'b0 | IF_ID_Inst[15:12] == 4'b1000 | IF_ID_Inst[15:12] == 4'b1001 | IF_ID_Inst[15:12] == 4'b1101) ? ((ID_EX_MemRead & ((ID_EX_RegisterRt == IF_ID_RegisterRs) | (ID_EX_RegisterRt == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:12] ==  4'b1101)) | ((IF_ID_Inst[15:12] == 4'b1101))) ? 1'b1 : 1'b0 : 1'b0;
+assign stall = (IF_ID_Inst[15] == 1'b0 | IF_ID_Inst[15:12] == 4'b1000 | IF_ID_Inst[15:12] == 4'b1001 | IF_ID_Inst[15:12] == 4'b1101) ? ((ID_EX_MemRead & ((ID_EX_RegisterRt == IF_ID_RegisterRs) | (ID_EX_RegisterRt == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:12] ==  4'b1101)) | ((IF_ID_Inst[15:12] == 4'b1101))) ? 1'b1 : 1'b0 : 1'b0;
+
+//assign pc_write = ((ID_EX_MemRead & ((ID_EX_RegisterRt == IF_ID_RegisterRs) | (ID_EX_RegisterRt == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:13] ==  3'b110) & ID_EX_RegWrite & ((ID_EX_RegisterRd == IF_ID_RegisterRs) | (ID_EX_RegisterRd == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:13] ==  3'b110) & EX_MEM_RegWrite & ((EX_MEM_RegisterRd == IF_ID_RegisterRs) | (EX_MEM_RegisterRd == IF_ID_RegisterRt)))) ? 1'b1 : 1'b0; //PC stall for data hazards
+
+//Control Hazard
+assign IF_Flush = (br_true) ? 1'b1 : 1'b0;
+
+endmodule
+ 
+          
+
+
