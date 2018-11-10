@@ -25,7 +25,7 @@ wire [15:0] SrcData2_or_Imm;
 wire [15:0] SrcData1_pre;
 wire br_true; //If this is true, B/BR will be taken
 wire [2:0] flags_in;
-wire [2:0] flags_out;
+//wire [2:0] flags_out;
 wire MemtoReg;
 wire MemRead;
 wire MemWrite;
@@ -38,18 +38,19 @@ wire pc_wen;
 wire [15:0]br_offset;
 wire [15:0]pc_in;
 wire [15:0] Dmem_out;
-wire [15:0] Dmem_in;
+//wire [15:0] Dmem_in;
 wire [15:0] ALUOut;
 wire Z, N, V, flag_wen;
+
 
 //Phase_2 wires
 wire stall;
 wire [15:0] IF_ID_Inst; 
-wire IF_ID_RegisterRs;
-wire IF_ID_RegisterRt; 
-wire ID_EX_RegisterRt; 
-wire ID_EX_RegisterRd;
-wire EX_MEM_RegisterRd; 
+//wire IF_ID_RegisterRs;
+//wire IF_ID_RegisterRt; 
+//wire ID_EX_RegisterRt; 
+//wire ID_EX_RegisterRd;
+//wire EX_MEM_RegisterRd; 
 wire ID_EX_RegWrite;
 wire EX_MEM_RegWrite; 
 wire IF_Flush; 
@@ -88,7 +89,7 @@ wire [15:0]ID_EX_SrcData1;
 wire hlt_pre;
 wire [15:0]ALUIn1, ALUIn2;
 wire [15:0]data_in;
-
+wire [15:0]LLB_LHB;
 //Opcode assignment
 assign opcode = IF_ID_Inst[15:12];
 
@@ -138,7 +139,7 @@ assign SrcData1 = (opcode[3]) ? (SrcData1_pre & 16'hFFFE) : SrcData1_pre;
 
 //ALU - for ADD, SUB, RED, ROR, PADDSB, SLL, SRA, XOR, LW, SW.
 assign ALUIn1 = (forward_in1 == 2'b00 || forward_in1 == 2'b11) ? ID_EX_SrcData1 : ((forward_in1 == 2'b10) ? EX_MEM_ALUOut : MEM_WB_ALUOut);
-assign ALUIn2 = (forward_in1 == 2'b00 || forward_in1 == 2'b11) ? SrcData2_or_Imm : ((forward_in1 == 2'b10) ? EX_MEM_ALUOut : MEM_WB_ALUOut);
+assign ALUIn2 = (forward_in2 == 2'b00 || forward_in2 == 2'b11) ? SrcData2_or_Imm : ((forward_in2 == 2'b10) ? EX_MEM_ALUOut : MEM_WB_ALUOut);
 ALU ALU_LW_SW(.Inst(ID_EX_opcode), .ALUIn1(ALUIn1), .ALUIn2(ALUIn2), .Shift_Val(ID_EX_imm_4bit), .ALUOut(ALUOut), .Z(Z), .V(V), .N(N));
 
 //Writing Flag Registers
@@ -171,13 +172,20 @@ assign br_offset = {{6{imm_9bit[8]}}, imm_9bit, 1'b0};
 Adder_16bit Br_add (.A(IF_ID_next_pc), .B(br_offset), .cin(1'b0), .Sat_Sum(branch_pc), .Ovfl(br_overflow));
 
 //Branch or not based on opcode and br_true.
-assign pc_in = (opcode[3:1] == 3'b110) ? (opcode[0] ? (br_true ? SrcData1 : IF_ID_next_pc) : (br_true ? branch_pc : IF_ID_next_pc)) : IF_ID_next_pc;
-
+//assign pc_in = (opcode[3:1] == 3'b110) ? (opcode[0] ? (br_true ? SrcData1 : IF_ID_next_pc) : (br_true ? branch_pc : IF_ID_next_pc)) : IF_ID_next_pc;
+assign pc_in = (opcode[3:1] == 3'b110) ? (opcode[0] ? (br_true ? SrcData1 : next_pc) : (br_true ? branch_pc : next_pc)) : next_pc;
 //DstData storage - LW, SW, LLB, LHB, B, BR, PCS, HLT Instructions
 //Nothing for SW, B, BR, HLT - because we don't need to write anything, RegWrite == 1'b0
-assign EX_MEM_ALUIn =  (ID_EX_opcode == 4'b1110) ? ID_EX_next_pc : //PCS
+assign LLB_LHB = (forward_in2 == 2'b00 || forward_in2 == 2'b11) ? 
+			(ID_EX_opcode[0] ? (ID_EX_SrcData2 & 16'h00FF) | ID_EX_sign_extend : (ID_EX_SrcData2 & 16'hFF00) | ID_EX_sign_extend) : 
+		 forward_in2 == 2'b10 ? (ID_EX_opcode[0] ? (EX_MEM_ALUOut & 16'h00FF) | ID_EX_sign_extend : (EX_MEM_ALUOut & 16'hFF00) | ID_EX_sign_extend) : 
+			(ID_EX_opcode[0] ? (MEM_WB_ALUOut & 16'h00FF) | ID_EX_sign_extend : (MEM_WB_ALUOut & 16'hFF00) | ID_EX_sign_extend);
+/* assign EX_MEM_ALUIn =  (ID_EX_opcode == 4'b1110) ? ID_EX_next_pc : //PCS
 			(ID_EX_opcode[3:1] == 3'b101) ? (ID_EX_opcode[0] ? ((SrcData2 & 16'h00FF) | ID_EX_sign_extend) : ((SrcData2 & 16'hFF00) | ID_EX_sign_extend)): //LLB opcode - 1010, LHB opcode - 1011 
-			ALUOut;
+			ALUOut; */
+assign EX_MEM_ALUIn =  (ID_EX_opcode == 4'b1110) ? ID_EX_next_pc : //PCS
+			(ID_EX_opcode[3:1] == 3'b101) ? LLB_LHB : ALUOut;
+
 assign DstData =  MEM_WB_MemtoReg ? MEM_WB_DmemOut : //LW
                   MEM_WB_ALUOut; //ALU Instructions - ADD, SUB, XOR, RED, PADDSB, SLL, ROR, SRA. Don't care for SW, B, BR, HLT since RegWrite == 0.
 

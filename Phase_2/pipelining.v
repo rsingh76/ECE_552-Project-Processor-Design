@@ -43,7 +43,7 @@ wire [15:0] pc_imm;
 dflipflop_16bit inst (.q(IF_ID_Inst), .d(Inst_imm), .wen(~stall), .clk(clk), .rst(~rst_n));
 dflipflop_16bit PC (.q(IF_ID_next_pc), .d(pc_imm), .wen(~stall), .clk(clk), .rst(~rst_n));
 assign Inst_imm = IF_Flush ? (16'h4000) :(Inst);
-//assign pc_imm =  IF_Flush ? (16'h0000) : (pc);
+assign pc_imm =  IF_Flush ? (16'h0000) : (pc);
 
 endmodule
 

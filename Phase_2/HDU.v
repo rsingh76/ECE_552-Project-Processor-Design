@@ -33,8 +33,8 @@ assign stall = (IF_ID_Inst[15] == 1'b0 | IF_ID_Inst[15:12] == 4'b1000 | IF_ID_In
 //assign pc_write = ((ID_EX_MemRead & ((ID_EX_RegisterRt == IF_ID_RegisterRs) | (ID_EX_RegisterRt == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:13] ==  3'b110) & ID_EX_RegWrite & ((ID_EX_RegisterRd == IF_ID_RegisterRs) | (ID_EX_RegisterRd == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:13] ==  3'b110) & EX_MEM_RegWrite & ((EX_MEM_RegisterRd == IF_ID_RegisterRs) | (EX_MEM_RegisterRd == IF_ID_RegisterRt)))) ? 1'b1 : 1'b0; //PC stall for data hazards
 
 //Control Hazard
-assign IF_Flush = (br_true) ? 1'b1 : 1'b0;
-
+//assign IF_Flush = (br_true) ? 1'b1 : 1'b0;
+assign IF_Flush = (br_true && (IF_ID_Inst[15:13] == 3'b110)) ? 1'b1 : 1'b0;	// to ensure that this doesn't flush pipeline unnessarily
 endmodule
  
           

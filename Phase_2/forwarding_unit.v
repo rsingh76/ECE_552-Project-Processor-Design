@@ -12,7 +12,7 @@ assign forward_in1 = ((EX_MEM_RegWrite) && (|EX_MEM_Rd != 1'b0) && (EX_MEM_Rd ==
 			((MEM_WB_RegWrite) && |EX_MEM_Rd != 1'b0 && (MEM_WB_Rd == ID_EX_Rs)) ? 2'b01 : 2'b00;
 
 
-assign forward_in1 = ((EX_MEM_RegWrite) && (|EX_MEM_Rd != 1'b0) && (EX_MEM_Rd == ID_EX_Rt)) ? 2'b10 :
+assign forward_in2 = ((EX_MEM_RegWrite) && (|EX_MEM_Rd != 1'b0) && (EX_MEM_Rd == ID_EX_Rt)) ? 2'b10 :
 			((MEM_WB_RegWrite) && |EX_MEM_Rd != 1'b0 && (MEM_WB_Rd == ID_EX_Rt)) ? 2'b01 : 2'b00;
 
 /////////////// MEM to MEM forwarding //////////////////////////////////////////////
