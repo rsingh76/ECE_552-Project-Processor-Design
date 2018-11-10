@@ -1,6 +1,6 @@
 //CORRECT BRANCH STALLS.
 
-module HDU (IF_ID_Inst, ID_EX_MemRead, ID_EX_RegWrite, EX_MEM_RegWrite, EX_MEM_RdAddr, br_true, ID_EX_flag_br_checker, EX_MEM_flag_br_checker, MEM_WB_flag_br_checker, stall, IF_Flush, ID_Flush);
+module HDU (IF_ID_Inst, ID_EX_MemRead, ID_EX_RegWrite, EX_MEM_RegWrite, EX_MEM_RdAddr, br_true, ID_EX_flag_br_checker, EX_MEM_flag_br_checker, ID_EX_RsAddr, MEM_WB_flag_br_checker, ID_EX_RsAddr, ID_EX_RtAddr, ID_EX_RtAddr, stall, IF_Flush, ID_Flush);
 
 input [15:0] IF_ID_Inst;
 input ID_EX_MemRead;
@@ -11,6 +11,8 @@ input br_true;
 input ID_EX_flag_br_checker;
 input EX_MEM_flag_br_checker;
 input MEM_WB_flag_br_checker;
+input [3:0] ID_EX_RsAddr;
+input [3:0] ID_EX_RtAddr;
 output stall;
 output IF_Flush;
 output ID_Flush;
@@ -23,7 +25,7 @@ wire [3:0] EX_MEM_RegisterRd;
 
 assign IF_ID_RegisterRs = IF_ID_Inst[7:4];
 assign IF_ID_RegisterRt = (IF_ID_Inst[15:12] == 4'b1000 | IF_ID_Inst[15:12] == 4'b1001) ? IF_ID_Inst[11:8] : IF_ID_Inst[3:0];
-assign ID_EX_RegisterRt = ID_EX_MemRead ? IF_ID_Inst[11:8] : IF_ID_Inst[3:0];
+assign ID_EX_RegisterRt = ID_EX_RtAddr;
 assign EX_MEM_RegisterRd = EX_MEM_RdAddr;
 //Data Hazard
 assign ID_Flush = (IF_ID_Inst[15] == 1'b0 | IF_ID_Inst[15:12] == 4'b1000 | IF_ID_Inst[15:12] == 4'b1001 | IF_ID_Inst[15:13] == 3'b110) ? ((ID_EX_MemRead & ((ID_EX_RegisterRt == IF_ID_RegisterRs) | (ID_EX_RegisterRt == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:13] ==  3'b110 && ID_EX_flag_br_checker == 1'b1 && IF_ID_Inst[11:9] != 3'b111) | (IF_ID_Inst[15:13] ==  3'b110 && EX_MEM_flag_br_checker == 1'b1 && IF_ID_Inst[11:9] != 3'b111))) ? 1'b1 : 1'b0 : 1'b0;
