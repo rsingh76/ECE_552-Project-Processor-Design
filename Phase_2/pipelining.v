@@ -68,7 +68,7 @@ output [15:0] ID_EX_next_pc;
 output ID_EX_flag_br_checker;
 output ID_EX_hlt;
 
-
+wire ID_EX_RegWrite_imm, ID_EX_MemRead_imm, ID_EX_MemWrite_imm, ID_EX_MemtoReg_imm;
 
 assign ID_EX_RegWrite_imm = ID_Flush ? (1'b0) : (RegWrite);
 assign ID_EX_MemRead_imm = ID_Flush ? (1'b0) : (MemRead);
