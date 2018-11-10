@@ -74,24 +74,24 @@ assign ID_EX_RegWrite_imm = ID_Flush ? (1'b0) : (RegWrite);
 assign ID_EX_MemRead_imm = ID_Flush ? (1'b0) : (MemRead);
 assign ID_EX_MemWrite_imm = ID_Flush ? (1'b0) : (MemWrite);
 assign ID_EX_MemtoReg_imm = ID_Flush ? (1'b0) : (MemtoReg);
-dff regwr(.q(ID_EX_RegWrite), .d(ID_EX_RegWrite_imm), .wen(1), .clk(clk), .rst(~rst_n));
-dff memrd(.q(ID_EX_MemRead), .d(ID_EX_MemRead_imm), .wen(1), .clk(clk), .rst(~rst_n));
-dff memwr(.q(ID_EX_MemWrite), .d(ID_EX_MemWrite_imm), .wen(1), .clk(clk), .rst(~rst_n));
-dff memreg(.q(ID_EX_MemtoReg), .d(ID_EX_MemtoReg_imm), .wen(1), .clk(clk), .rst(~rst_n));
+dff regwr(.q(ID_EX_RegWrite), .d(ID_EX_RegWrite_imm), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff memrd(.q(ID_EX_MemRead), .d(ID_EX_MemRead_imm), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff memwr(.q(ID_EX_MemWrite), .d(ID_EX_MemWrite_imm), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff memreg(.q(ID_EX_MemtoReg), .d(ID_EX_MemtoReg_imm), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dflipflop_16bit Data0 (.q(ID_EX_RegVal1), .d(SrcData1), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_16bit Data1 (.q(ID_EX_RegVal2), .d(SrcData2), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_16bit pc (.q(ID_EX_next_pc), .d(IF_ID_next_pc), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_4bit imm (.q(ID_EX_imm_4bit), .d(imm_4bit), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_16bit sgn (.q(ID_EX_sign_extend), .d(sign_extend), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_4bit Data2 (.q(ID_EX_RsAddr), .d(SrcReg1), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_4bit Data3 (.q(ID_EX_RtAddr), .d(SrcReg2), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_4bit Data4 (.q(ID_EX_RdAddr), .d(DstReg), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_4bit Data5 (.q(ID_EX_opcode), .d(opcode), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_4bit op (.q(ID_EX_opcode), .d(opcode), .wen(1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit Data0 (.q(ID_EX_RegVal1), .d(SrcData1), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit Data1 (.q(ID_EX_RegVal2), .d(SrcData2), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit pc (.q(ID_EX_next_pc), .d(IF_ID_next_pc), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit imm (.q(ID_EX_imm_4bit), .d(imm_4bit), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit sgn (.q(ID_EX_sign_extend), .d(sign_extend), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit Data2 (.q(ID_EX_RsAddr), .d(SrcReg1), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit Data3 (.q(ID_EX_RtAddr), .d(SrcReg2), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit Data4 (.q(ID_EX_RdAddr), .d(DstReg), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit Data5 (.q(ID_EX_opcode), .d(opcode), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit op (.q(ID_EX_opcode), .d(opcode), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dff flag(.q(ID_EX_flag_br_checker), .d(flag_br_checker), .wen(1), .clk(clk), .rst(~rst_n));
-dff halt_0(.q(ID_EX_hlt), .d(hlt), .wen(1), .clk(clk), .rst(~rst_n));
+dff flag(.q(ID_EX_flag_br_checker), .d(flag_br_checker), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff halt_0(.q(ID_EX_hlt), .d(hlt), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 endmodule
 
@@ -116,20 +116,20 @@ output EX_MEM_flag_br_checker;
 output [2:0] EX_MEM_flags;
 output EX_MEM_hlt;
 
-dff RegWrt(.q(EX_MEM_RegWrite), .d(ID_EX_RegWrite), .wen(1), .clk(clk), .rst(~rst_n));
-dff MemRead(.q(EX_MEM_MemRead), .d(ID_EX_MemRead), .wen(1), .clk(clk), .rst(~rst_n));
-dff MemWrt(.q(EX_MEM_MemWrite), .d(ID_EX_MemWrite), .wen(1), .clk(clk), .rst(~rst_n));
-dff MemtoRg(.q(EX_MEM_MemtoReg), .d(ID_EX_MemtoReg), .wen(1), .clk(clk), .rst(~rst_n));
+dff RegWrt(.q(EX_MEM_RegWrite), .d(ID_EX_RegWrite), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff MemRead(.q(EX_MEM_MemRead), .d(ID_EX_MemRead), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff MemWrt(.q(EX_MEM_MemWrite), .d(ID_EX_MemWrite), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff MemtoRg(.q(EX_MEM_MemtoReg), .d(ID_EX_MemtoReg), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dflipflop_16bit mem (.q(EX_MEM_MemData), .d(MemData), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_16bit aluout (.q(EX_MEM_ALUOut), .d(ALUOut), .wen(1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit mem (.q(EX_MEM_MemData), .d(MemData), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit aluout (.q(EX_MEM_ALUOut), .d(ALUOut), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dflipflop_4bit Rd (.q(EX_MEM_RdAddr), .d(ID_EX_RdAddr), .wen(1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit Rd (.q(EX_MEM_RdAddr), .d(ID_EX_RdAddr), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dff flag_1(.q(EX_MEM_flag_br_checker), .d(ID_EX_flag_br_checker), .wen(1), .clk(clk), .rst(~rst_n));
+dff flag_1(.q(EX_MEM_flag_br_checker), .d(ID_EX_flag_br_checker), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 dflipflop_3bit flag_reg(.q(EX_MEM_flags), .d(flags_in), .wen(flag_wen), .clk(clk), .rst(~rst_n));
-dff halt_1(.q(EX_MEM_hlt), .d(ID_EX_hlt), .wen(1), .clk(clk), .rst(~rst_n));
+dff halt_1(.q(EX_MEM_hlt), .d(ID_EX_hlt), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 endmodule
 
@@ -151,16 +151,16 @@ output MEM_WB_flag_br_checker;
 output [2:0] MEM_WB_flags;
 output MEM_WB_hlt;
 
-dff RegWrt(.q(MEM_WB_RegWrite), .d(EX_MEM_RegWrite), .wen(1), .clk(clk), .rst(~rst_n));
-dff MemtoReg(.q(MEM_WB_MemtoReg), .d(EX_MEM_MemtoReg), .wen(1), .clk(clk), .rst(~rst_n));
+dff RegWrt(.q(MEM_WB_RegWrite), .d(EX_MEM_RegWrite), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff MemtoReg(.q(MEM_WB_MemtoReg), .d(EX_MEM_MemtoReg), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dflipflop_16bit dmemout (.q(MEM_WB_DmemOut), .d(Dmem_out), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_16bit aluout (.q(MEM_WB_ALUOut), .d(EX_MEM_ALUOut), .wen(1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit dmemout (.q(MEM_WB_DmemOut), .d(Dmem_out), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_16bit aluout (.q(MEM_WB_ALUOut), .d(EX_MEM_ALUOut), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dflipflop_4bit Rd (.q(MEM_WB_RdAddr), .d(EX_MEM_RdAddr), .wen(1), .clk(clk), .rst(~rst_n));
+dflipflop_4bit Rd (.q(MEM_WB_RdAddr), .d(EX_MEM_RdAddr), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dff flag_2(.q(MEM_WB_flag_br_checker), .d(EX_MEM_flag_br_checker), .wen(1), .clk(clk), .rst(~rst_n));
-dflipflop_3bit flag_reg_2(.q(MEM_WB_flags), .d(EX_MEM_flags), .wen(1), .clk(clk), .rst(~rst_n));
-dff halt_2(.q(MEM_WB_hlt), .d(EX_MEM_hlt), .wen(1), .clk(clk), .rst(~rst_n));
+dff flag_2(.q(MEM_WB_flag_br_checker), .d(EX_MEM_flag_br_checker), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dflipflop_3bit flag_reg_2(.q(MEM_WB_flags), .d(EX_MEM_flags), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff halt_2(.q(MEM_WB_hlt), .d(EX_MEM_hlt), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 endmodule

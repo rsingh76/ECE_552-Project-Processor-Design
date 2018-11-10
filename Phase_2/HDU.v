@@ -1,6 +1,6 @@
 //CORRECT BRANCH STALLS.
 
-module HDU (IF_ID_Inst, ID_EX_MemRead, ID_EX_RegWrite, EX_MEM_RegWrite, EX_MEM_RdAddr, br_true, ID_EX_flag_br_checker, EX_MEM_flag_br_checker, MEM_WB_flag_br_checker, ID_EX_RtAddr, ID_EX_RtAddr, stall, IF_Flush, ID_Flush);
+module HDU (IF_ID_Inst, ID_EX_MemRead, ID_EX_RegWrite, EX_MEM_RegWrite, EX_MEM_RdAddr, br_true, ID_EX_flag_br_checker, EX_MEM_flag_br_checker, MEM_WB_flag_br_checker, ID_EX_RtAddr, stall, IF_Flush, ID_Flush);
 
 input [15:0] IF_ID_Inst;
 input ID_EX_MemRead;
