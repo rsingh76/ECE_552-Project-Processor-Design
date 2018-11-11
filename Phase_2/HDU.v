@@ -29,7 +29,7 @@ assign IF_ID_RegisterRt = (IF_ID_Inst[15:12] == 4'b1000 | IF_ID_Inst[15:12] == 4
 assign ID_EX_RegisterRt = ID_EX_RtAddr;
 assign EX_MEM_RegisterRd = EX_MEM_RdAddr;
 
-assign flag_br_checker = ID_EX_flag_br_checker ? 0 : (((IF_ID_Inst[15:13] == 3'b110) && (IF_ID_Inst[11:9] != 3'b111) && (MEM_WB_flag_br_checker == 1'b1)) ? 1'b1 : 1'b0);
+assign flag_br_checker = (ID_EX_flag_br_checker | EX_MEM_flag_br_checker) ? 0 : (((IF_ID_Inst[15:13] == 3'b110) && (IF_ID_Inst[11:9] != 3'b111)) ? 1'b1 : 1'b0);
 
 //Data Hazard
 assign ID_Flush = (IF_ID_Inst[15] == 1'b0 | IF_ID_Inst[15:12] == 4'b1000 | IF_ID_Inst[15:12] == 4'b1001 | IF_ID_Inst[15:13] == 3'b110) ? ((ID_EX_MemRead & ((ID_EX_RegisterRt == IF_ID_RegisterRs) | (ID_EX_RegisterRt == IF_ID_RegisterRt))) | ((IF_ID_Inst[15:13] ==  3'b110 && flag_br_checker == 1'b1 && IF_ID_Inst[11:9] != 3'b111) | (IF_ID_Inst[15:13] ==  3'b110 && ID_EX_flag_br_checker == 1'b1 && IF_ID_Inst[11:9] != 3'b111))) ? 1'b1 : 1'b0 : 1'b0;
