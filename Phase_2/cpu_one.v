@@ -108,7 +108,7 @@ assign hlt_pre = (Inst[15:12] == 4'b1111);
 assign hlt = MEM_WB_hlt;
 
 //PC register
-assign pc_wen = (~rst_n || hlt || stall) ? 1'b0 : 1'b1;
+assign pc_wen = (~rst_n || (hlt_pre & !IF_Flush) || stall) ? 1'b0 : 1'b1;
 dflipflop_16bit program_counter(.q(pc), .d(pc_in), .wen(pc_wen), .clk(clk), .rst(~rst_n)); // 16 bit register to hold current pc value
 
 //Imem
