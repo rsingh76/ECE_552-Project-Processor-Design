@@ -95,7 +95,7 @@ dflipflop_4bit Data5 (.q(ID_EX_opcode), .d(opcode), .wen(1'b1), .clk(clk), .rst(
 dflipflop_4bit op (.q(ID_EX_opcode), .d(opcode), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 dff flag(.q(ID_EX_flag_br_checker), .d(flag_br_checker), .wen(1'b1), .clk(clk), .rst(~rst_n));
-dff halt_0(.q(ID_EX_hlt), .d(hlt), .wen(1'b1), .clk(clk), .rst(~rst_n));
+dff halt_0(.q(ID_EX_hlt), .d(IF_ID_hlt), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 endmodule
 
