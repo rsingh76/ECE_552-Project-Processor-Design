@@ -92,6 +92,7 @@ wire [15:0]data_in;
 wire [15:0]LLB_LHB;
 wire [15:0] SrcData1_raw;
 wire [15:0] SrcData2_raw;
+wire IF_ID_hlt;
 
 //Opcode assignment
 assign opcode = IF_ID_Inst[15:12];
@@ -206,21 +207,21 @@ assign DstData =  MEM_WB_MemtoReg ? MEM_WB_DmemOut : //LW
 branch_control BR1(.br_condition(br_condition), .flags_out(MEM_WB_flags), .br_true(br_true));
 
 //HDU Instantiation
-HDU HDU_01 (.IF_ID_Inst(IF_ID_Inst), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_RegWrite(ID_EX_RegWrite), .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_RdAddr(EX_MEM_RdAddr), .br_true(br_true), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker), .ID_EX_RtAddr(ID_EX_RtAddr), .stall(stall), .IF_Flush(IF_Flush), .ID_Flush(ID_Flush), .flag_br_checker(flag_br_checker));
+HDU HDU_01 (.IF_ID_Inst(IF_ID_Inst), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_RegWrite(ID_EX_RegWrite), .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_RdAddr(EX_MEM_RdAddr), .br_true(br_true), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker), .MEM_WB_flag_br_checker(MEM_WB_flag_br_checker), .ID_EX_RtAddr(ID_EX_RtAddr), .stall(stall), .IF_Flush(IF_Flush), .ID_Flush(ID_Flush), .flag_br_checker(flag_br_checker));
 
 //module HDU (IF_ID_Inst, ID_EX_MemRead, ID_EX_RegWrite, EX_MEM_RegWrite, EX_MEM_RdAddr, br_true, ID_EX_flag_br_checker, EX_MEM_flag_br_checker, MEM_WB_flag_br_checker, ID_EX_RtAddr, ID_EX_RtAddr, stall, IF_Flush, ID_Flush);
 
 //Pipeline Instantiation
-IF_ID Init1(.clk(clk), .rst_n(rst_n), .Inst(Inst), .pc(next_pc), .IF_Flush(IF_Flush), .stall(stall), .IF_ID_Inst(IF_ID_Inst), .IF_ID_next_pc(IF_ID_next_pc));
+IF_ID Init1(.clk(clk), .rst_n(rst_n), .Inst(Inst), .pc(next_pc), .IF_Flush(IF_Flush), .stall(stall), .IF_ID_Inst(IF_ID_Inst), .IF_ID_next_pc(IF_ID_next_pc), .hlt(hlt_pre), .IF_ID_hlt(IF_ID_hlt));
 
-ID_EX Init2(.clk(clk), .rst_n(rst_n), .opcode(opcode), .SrcData1(SrcData1), .SrcData2(SrcData2), .imm_4bit(imm_4bit), .sign_extend(sign_extend), .SrcReg1(SrcReg1), .SrcReg2(SrcReg2), .DstReg(DstReg), .ID_Flush(ID_Flush), .RegWrite(RegWrite), .MemRead(MemRead), .MemWrite(MemWrite), .MemtoReg(MemtoReg), .IF_ID_next_pc(IF_ID_next_pc), .flag_br_checker(flag_br_checker), .hlt(hlt_pre) , 
+ID_EX Init2(.clk(clk), .rst_n(rst_n), .opcode(opcode), .SrcData1(SrcData1), .SrcData2(SrcData2), .imm_4bit(imm_4bit), .sign_extend(sign_extend), .SrcReg1(SrcReg1), .SrcReg2(SrcReg2), .DstReg(DstReg), .ID_Flush(ID_Flush), .RegWrite(RegWrite), .MemRead(MemRead), .MemWrite(MemWrite), .MemtoReg(MemtoReg), .IF_ID_next_pc(IF_ID_next_pc), .flag_br_checker(flag_br_checker), .IF_ID_hlt(IF_ID_hlt) , 
 .ID_EX_RegWrite(ID_EX_RegWrite), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_MemWrite(ID_EX_MemWrite), .ID_EX_MemtoReg(ID_EX_MemtoReg), .ID_EX_RegVal1(ID_EX_SrcData1), .ID_EX_RegVal2(ID_EX_SrcData2), .ID_EX_sign_extend(ID_EX_sign_extend), .ID_EX_RsAddr(ID_EX_RsAddr), .ID_EX_RtAddr(ID_EX_RtAddr), .ID_EX_RdAddr(ID_EX_RdAddr), .ID_EX_imm_4bit(ID_EX_imm_4bit), .ID_EX_opcode(ID_EX_opcode), .ID_EX_next_pc(ID_EX_next_pc), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .ID_EX_hlt(ID_EX_hlt));
 
 EX_MEM Init3(.clk(clk), .rst_n(rst_n), .ID_EX_RegWrite(ID_EX_RegWrite), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_MemWrite(ID_EX_MemWrite), .ID_EX_MemtoReg(ID_EX_MemtoReg), .ALUOut(EX_MEM_ALUIn), .ID_EX_RdAddr(ID_EX_RdAddr), .MemData(ID_EX_SrcData2), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .flag_wen(flag_wen), .flags_in(flags_in), .ID_EX_hlt(ID_EX_hlt),
 .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_MemRead(EX_MEM_MemRead), .EX_MEM_MemWrite(EX_MEM_MemWrite), .EX_MEM_MemtoReg(EX_MEM_MemtoReg), .EX_MEM_MemData(EX_MEM_MemData), .EX_MEM_RdAddr(EX_MEM_RdAddr), .EX_MEM_ALUOut(EX_MEM_ALUOut), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker), .EX_MEM_flags(EX_MEM_flags), .EX_MEM_hlt(EX_MEM_hlt));
 
-MEM_WB Init4(.clk(clk), .rst_n(rst_n), .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_MemtoReg(EX_MEM_MemtoReg), .EX_MEM_ALUOut(EX_MEM_ALUOut), .Dmem_out(Dmem_out), .EX_MEM_RdAddr(EX_MEM_RdAddr), .EX_MEM_flags(EX_MEM_flags), .EX_MEM_hlt(EX_MEM_hlt),
-.MEM_WB_RegWrite(MEM_WB_RegWrite), .MEM_WB_MemtoReg(MEM_WB_MemtoReg), .MEM_WB_ALUOut(MEM_WB_ALUOut), .MEM_WB_DmemOut(MEM_WB_DmemOut), .MEM_WB_RdAddr(MEM_WB_RdAddr), .MEM_WB_flags(MEM_WB_flags), .MEM_WB_hlt(MEM_WB_hlt));
+MEM_WB Init4(.clk(clk), .rst_n(rst_n), .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_MemtoReg(EX_MEM_MemtoReg), .EX_MEM_ALUOut(EX_MEM_ALUOut), .Dmem_out(Dmem_out), .EX_MEM_RdAddr(EX_MEM_RdAddr), .EX_MEM_flags(EX_MEM_flags), .EX_MEM_hlt(EX_MEM_hlt), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker),
+.MEM_WB_RegWrite(MEM_WB_RegWrite), .MEM_WB_MemtoReg(MEM_WB_MemtoReg), .MEM_WB_ALUOut(MEM_WB_ALUOut), .MEM_WB_DmemOut(MEM_WB_DmemOut), .MEM_WB_RdAddr(MEM_WB_RdAddr), .MEM_WB_flags(MEM_WB_flags), .MEM_WB_hlt(MEM_WB_hlt), .MEM_WB_flag_br_checker(MEM_WB_flag_br_checker));
 
 assign sign_extend = (opcode[3:1] == 3'b101) ? (opcode[0] ? {imm_8bit, {8{1'b0}}} : {{8{1'b0}}, imm_8bit}) : ((opcode[3:1] == 3'b100) ?  {{11{imm_4bit[3]}}, imm_4bit, 1'b0} : ID_EX_SrcData2);
 
