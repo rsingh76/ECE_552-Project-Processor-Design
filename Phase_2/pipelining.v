@@ -133,21 +133,21 @@ dff halt_1(.q(EX_MEM_hlt), .d(ID_EX_hlt), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 endmodule
 
-module MEM_WB(clk, rst_n, EX_MEM_RegWrite, EX_MEM_MemtoReg, EX_MEM_ALUOut, Dmem_out, EX_MEM_RdAddr, EX_MEM_flag_br_checker, EX_MEM_flags, EX_MEM_hlt,
-MEM_WB_RegWrite, MEM_WB_MemtoReg, MEM_WB_ALUOut, MEM_WB_DmemOut, MEM_WB_RdAddr, MEM_WB_flag_br_checker, MEM_WB_flags, MEM_WB_hlt);
+module MEM_WB(clk, rst_n, EX_MEM_RegWrite, EX_MEM_MemtoReg, EX_MEM_ALUOut, Dmem_out, EX_MEM_RdAddr, EX_MEM_flags, EX_MEM_hlt,
+MEM_WB_RegWrite, MEM_WB_MemtoReg, MEM_WB_ALUOut, MEM_WB_DmemOut, MEM_WB_RdAddr, MEM_WB_flags, MEM_WB_hlt);
 
 input clk;
 input rst_n;
 input EX_MEM_RegWrite, EX_MEM_MemtoReg;
 input [15:0] EX_MEM_ALUOut, Dmem_out;
 input [3:0] EX_MEM_RdAddr;
-input EX_MEM_flag_br_checker;
+
 input [2:0] EX_MEM_flags;
 input EX_MEM_hlt;
 output MEM_WB_RegWrite, MEM_WB_MemtoReg;
 output [15:0] MEM_WB_ALUOut, MEM_WB_DmemOut;
 output [3:0] MEM_WB_RdAddr;
-output MEM_WB_flag_br_checker;
+
 output [2:0] MEM_WB_flags;
 output MEM_WB_hlt;
 
@@ -159,7 +159,7 @@ dflipflop_16bit aluout (.q(MEM_WB_ALUOut), .d(EX_MEM_ALUOut), .wen(1'b1), .clk(c
 
 dflipflop_4bit Rd (.q(MEM_WB_RdAddr), .d(EX_MEM_RdAddr), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
-dff flag_2(.q(MEM_WB_flag_br_checker), .d(EX_MEM_flag_br_checker), .wen(1'b1), .clk(clk), .rst(~rst_n));
+
 dflipflop_3bit flag_reg_2(.q(MEM_WB_flags), .d(EX_MEM_flags), .wen(1'b1), .clk(clk), .rst(~rst_n));
 dff halt_2(.q(MEM_WB_hlt), .d(EX_MEM_hlt), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
