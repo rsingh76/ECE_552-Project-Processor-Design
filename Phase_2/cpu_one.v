@@ -207,7 +207,7 @@ assign DstData =  MEM_WB_MemtoReg ? MEM_WB_DmemOut : //LW
 branch_control BR1(.br_condition(br_condition), .flags_out(MEM_WB_flags), .br_true(br_true));
 
 //HDU Instantiation
-HDU HDU_01 (.IF_ID_Inst(IF_ID_Inst), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_RegWrite(ID_EX_RegWrite), .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_RdAddr(EX_MEM_RdAddr), .br_true(br_true), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker), .MEM_WB_flag_br_checker(MEM_WB_flag_br_checker), .ID_EX_RtAddr(ID_EX_RtAddr), .stall(stall), .IF_Flush(IF_Flush), .ID_Flush(ID_Flush), .flag_br_checker(flag_br_checker));
+HDU HDU_01 (.IF_ID_Inst(IF_ID_Inst), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_RegWrite(ID_EX_RegWrite), .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_RdAddr(EX_MEM_RdAddr), .br_true(br_true), .MemWrite(MemWrite), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker), .MEM_WB_flag_br_checker(MEM_WB_flag_br_checker), .ID_EX_RtAddr(ID_EX_RtAddr), .stall(stall), .IF_Flush(IF_Flush), .ID_Flush(ID_Flush), .flag_br_checker(flag_br_checker));
 
 //module HDU (IF_ID_Inst, ID_EX_MemRead, ID_EX_RegWrite, EX_MEM_RegWrite, EX_MEM_RdAddr, br_true, ID_EX_flag_br_checker, EX_MEM_flag_br_checker, MEM_WB_flag_br_checker, ID_EX_RtAddr, ID_EX_RtAddr, stall, IF_Flush, ID_Flush);
 
