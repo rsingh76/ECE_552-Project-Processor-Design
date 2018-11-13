@@ -93,6 +93,7 @@ wire [15:0]LLB_LHB;
 wire [15:0] SrcData1_raw;
 wire [15:0] SrcData2_raw;
 wire IF_ID_hlt;
+//wire IF_ID_Inst_checker;
 
 //Opcode assignment
 assign opcode = IF_ID_Inst[15:12];
@@ -121,7 +122,8 @@ memory1c IMEM(.data_out(Inst), .data_in(Inst_data_in), .addr(pc), .enable(Inst_e
 assign SrcReg1 = IF_ID_Inst[7:4]; //Always source register SrcReg1 -- ALU Src1
 assign SrcReg2 = ((opcode == 4'b1000) | (opcode == 4'b1001) | opcode == 4'b1011 | opcode == 4'b1010) ? IF_ID_Inst[11:8] : IF_ID_Inst[3:0]; //Inst[11:8] is source register (from which value is to be stored in memory) for sw instruction, and source for LLB, LHB instructions
 assign DstReg = IF_ID_Inst[11:8]; //Always destination register
-assign RegWrite = ((opcode == 4'b1001) | (opcode == 4'b1100) | (opcode == 4'b1101) | (opcode == 4'b1111)) ? 1'b0 : 1'b1;
+//assign IF_ID_Inst_checker = IF_ID_Inst[0] | IF_ID_Inst[0] | IF_ID_Inst[0] | IF_ID_Inst[0] | IF_ID_Inst[0] | IF_ID_Inst[0];  
+assign RegWrite = (((opcode[3] == 1'b0) || (opcode == 4'b1000) || (opcode == 4'b1010) || (opcode == 4'b1011) || (opcode == 4'b1110)) && IF_ID_next_pc != 16'b0)  ? 1'b1 : 1'b0;
 
 //Immediate fields
 assign imm_4bit = IF_ID_Inst[3:0]; //Always immediate 4-bit field for LW, SW
@@ -159,7 +161,7 @@ assign flag_wen = (ID_EX_opcode[3:1] == 3'b000) || (ID_EX_opcode == 4'b0010) || 
 //Flags flag(.flags_out(flags_out), .clk(clk), .rst(~rst_n), .wen(flag_wen), .flags_in(flags_in));
 
 //RegWrite == 1'b0 for SW, B, BR, HLT
-assign RegWrite = ((~opcode[3]) | (~opcode[2] & ~opcode[0]) | (opcode[1] & ~opcode[0]) | (~opcode[2] & opcode[1])) ? 1'b1 : 1'b0;
+//assign RegWrite = ((~opcode[3]) | (~opcode[2] & ~opcode[0]) | (opcode[1] & ~opcode[0]) | (~opcode[2] & opcode[1])) ? 1'b1 : 1'b0;
 
 assign MemWrite = (opcode == 4'b1001) ? 1'b1 : 1'b0; //1'b1 for SW
 assign MemRead = (opcode == 4'b1000) ? 1'b1 : 1'b0; //1'b1 for LW

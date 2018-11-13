@@ -39,14 +39,14 @@ output[15:0] IF_ID_next_pc; //already incremented by 2
 output IF_ID_hlt;
 
 wire [15:0] Inst_imm; //Intermediate values
-wire [15:0] pc_imm;
+//wire [15:0] pc_imm;
 wire hlt_imm;
 
 dflipflop_16bit inst (.q(IF_ID_Inst), .d(Inst_imm), .wen(~stall), .clk(clk), .rst(~rst_n));
-dflipflop_16bit PC (.q(IF_ID_next_pc), .d(pc_imm), .wen(~stall), .clk(clk), .rst(~rst_n));
+dflipflop_16bit PC (.q(IF_ID_next_pc), .d(pc), .wen(~stall), .clk(clk), .rst(~rst_n));
 dff halt(.q(IF_ID_hlt), .d(hlt_imm), .wen(~stall), .clk(clk), .rst(~rst_n));
 assign Inst_imm = IF_Flush ? (16'h4000) :(Inst);
-assign pc_imm =  IF_Flush ? (16'h0000) : (pc);
+//assign pc_imm =  IF_Flush ? (16'h0000) : (pc);
 assign hlt_imm = IF_Flush ? (1'b0) : hlt;
 
 endmodule
