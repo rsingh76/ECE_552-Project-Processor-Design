@@ -137,7 +137,7 @@ assign SrcData1_pre = ((SrcReg1 == MEM_WB_RdAddr) && (MEM_WB_RegWrite) && (MEM_W
 assign SrcData2 = ((SrcReg2 == MEM_WB_RdAddr) && (MEM_WB_RegWrite) && (MEM_WB_RdAddr != 4'b0)) ? DstData : SrcData2_raw;  
 
 //Choose SrcData2 or Imm (only for LW/SW) as per opcode
-assign SrcData2_or_Imm = (ID_EX_opcode[3]) ?  ID_EX_sign_extend : ID_EX_SrcData2; //ALU Src2
+assign SrcData2_or_Imm = (ID_EX_opcode[3] & ID_EX_opcode != 4'b1111) ?  ID_EX_sign_extend : ID_EX_SrcData2; //ALU Src2
 
 //Enforcing LSB of address is 1'b0 for LW/SW
 assign SrcData1 = (opcode[3]) ? (SrcData1_pre & 16'hFFFE) : SrcData1_pre; 
@@ -147,7 +147,7 @@ assign SrcData1 = (opcode[3]) ? (SrcData1_pre & 16'hFFFE) : SrcData1_pre;
 
 //ALU - for ADD, SUB, RED, ROR, PADDSB, SLL, SRA, XOR, LW, SW.
 assign ALUIn1 = (forward_in1 == 2'b00 || forward_in1 == 2'b11) ? ID_EX_SrcData1 : ((forward_in1 == 2'b10) ? EX_MEM_ALUOut : DstData);
-assign ALUIn2 = (forward_in2 == 2'b00 || forward_in2 == 2'b11) ? SrcData2_or_Imm : ((forward_in2 == 2'b10) ? EX_MEM_ALUOut : DstData);
+assign ALUIn2 = ID_EX_opcode[3:1] == 3'b100 ? SrcData2_or_Imm : (forward_in2 == 2'b00 || forward_in2 == 2'b11) ? SrcData2_or_Imm : (forward_in2 == 2'b10) ? EX_MEM_ALUOut : DstData;
 ALU ALU_LW_SW(.Inst(ID_EX_opcode), .ALUIn1(ALUIn1), .ALUIn2(ALUIn2), .Shift_Val(ID_EX_imm_4bit), .ALUOut(ALUOut), .Z(Z), .V(V), .N(N));
 
 //Writing Flag Registers
@@ -168,7 +168,7 @@ assign MemRead = (opcode == 4'b1000) ? 1'b1 : 1'b0; //1'b1 for LW
 assign MemtoReg =  (opcode == 4'b1000) ? 1'b1 : 1'b0; //1'b1 for LW, similar to MemRead
 
 //Dmem
-assign data_in = (forward_mem_mux) ? MEM_WB_ALUOut : MEM_WB_DmemOut ;
+assign data_in = (forward_mem_mux) ? DstData : EX_MEM_MemData ;
 data_memory1c DMEM(.data_out(Dmem_out), .data_in(data_in), .addr(EX_MEM_ALUOut), .enable(EX_MEM_MemRead | EX_MEM_MemWrite), .wr(EX_MEM_MemWrite), .clk(clk), .rst(~rst_n));
 
 //PC_Next adder
