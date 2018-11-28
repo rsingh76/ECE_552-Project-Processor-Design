@@ -92,7 +92,7 @@ always @* begin
 			  fsm_busy = 1'b0;
 			  nxt_STATE = IDLE;
 			  write_tag_array = 1'b1;	
-			  memory_data_valid = 1'b1;
+			  write_data_array = 1'b1;
 			end
 
 			default : begin
