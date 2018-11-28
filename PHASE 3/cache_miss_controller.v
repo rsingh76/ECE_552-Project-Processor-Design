@@ -1,5 +1,5 @@
 module cache_fill_FSM(clk, rst_n, miss_detected, miss_address, fsm_busy, write_data_array, 
-			write_tag_array,memory_address, memory_data, memory_write_data, Write);
+			write_tag_array,main_memory_address, memory_address, memory_data_valid);
 
 input clk, rst_n;
 input miss_detected; // active high when tag match logic detects a miss
@@ -7,10 +7,10 @@ input [15:0] miss_address; // address that missed the cache
 output reg fsm_busy; // asserted while FSM is busy handling the miss (can be used as pipeline stall signal)
 output reg write_data_array; // write enable to cache data array to signal when filling with memory_data
 output reg write_tag_array; // write enable to cache tag array to signal when all words are filled in to data array
-output [15:0] memory_address; // address to read from memory
-output [15:0] memory_data; // data returned by memory (after delay)
-input [15:0] memory_write_data; // data to be written in main memory
-input Write;
+output [15:0] main_memory_address; // address to read from memory
+output [15:0] memory_address; // cache address to write the data from memory
+input memory_data_valid; // active high indicates valid data returning on memory bus
+
 ///////////////////////////////////Local parameters for state machine ////////////////////////////////////////////////////
 
 localparam IDLE = 1'b0;
@@ -24,8 +24,8 @@ reg en_cnt, clr_cnt;
 wire [3:0]cnt, inc_cnt;
 wire [7:0]decoded_write_enable;
 reg WordEnable;
-wire memory_data_valid; // active high indicates valid data returning on memory bus
 
+wire mem_Write;
 //////////////////////////////////// Logic ////////////////////////////////////////////////////////////////////////////////
 
 // STATE FLOP
@@ -44,16 +44,16 @@ adder_4bit chunks(.AA(cnt), .BB(1'b1), .SS(inc_cnt), .CC(1'b0));
 
 // Memory address increment //////////////////////////////////////////////////////////
 
-assign main_memory_address = 	(!Write) ? (cnt == 4'h0) ? {{miss_address[15:4]},4'b0000} : 		// to be used when instatntitating multi cycle memory
+assign main_memory_address = 	(cnt == 4'h0) ? {{miss_address[15:4]},4'b0000} : 	// to be used when instatntitating multi cycle memory
 			     	(cnt == 4'h1) ? {{miss_address[15:4]},4'b0010} : 
 			    	(cnt == 4'h2) ? {{miss_address[15:4]},4'b0100} :
 				(cnt == 4'h3) ? {{miss_address[15:4]},4'b0110} :
 				(cnt == 4'h4) ? {{miss_address[15:4]},4'b1000} :
 				(cnt == 4'h5) ? {{miss_address[15:4]},4'b1010} :
 				(cnt == 4'h6) ? {{miss_address[15:4]},4'b1100} :
-				(cnt == 4'h7) ? {{miss_address[15:4]},4'b1110} : 16'h0000 : miss_address;
+				(cnt == 4'h7) ? {{miss_address[15:4]},4'b1110} : 16'h0000;
 
-assign memory_address = 	(cnt == 4'h1) ? {{miss_address[15:4]},4'b0000} : 		// to be used when writing to cache
+assign memory_address = 	(cnt == 4'h1) ? {{miss_address[15:4]},4'b0000} : // to be used when writing to cache, passed on to other module as output
 			    	(cnt == 4'h2) ? {{miss_address[15:4]},4'b0010} :
 				(cnt == 4'h3) ? {{miss_address[15:4]},4'b0100} :
 				(cnt == 4'h4) ? {{miss_address[15:4]},4'b0110} :
@@ -61,9 +61,6 @@ assign memory_address = 	(cnt == 4'h1) ? {{miss_address[15:4]},4'b0000} : 		// t
 				(cnt == 4'h6) ? {{miss_address[15:4]},4'b1010} :
 				(cnt == 4'h7) ? {{miss_address[15:4]},4'b1100} : 
 				(cnt == 4'h8) ? {{miss_address[15:4]},4'b1110} : 16'h0000;
-
-
-memory4c multicycle(.data_out(memory_data), .data_in(memory_write_data), .addr(main_memory_address), .enable(fsm_busy), .wr(Write), .clk(clk), .rst(~rst_n), .data_valid(memory_data_valid));
 
 
 // Combinational Logic //////////////////////////////////////////////////////////////////////////////////////
