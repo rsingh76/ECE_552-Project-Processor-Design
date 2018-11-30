@@ -30,13 +30,13 @@ wire [15:0] Shift_Out_imm;
 
 Shifter_16bit S0(.Shift_In(16'h0001), .Mode(2'b00), .Shift_Val(Shift_Val), .Shift_Out(Shift_Out_imm)); //SLL mode is 00
 
-assign Shift_Out[15:0] = ((set[7] == 0) && (set[5] == 0) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
-assign Shift_Out[31:16] = ((set[7] == 0) && (set[5] == 0) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
-assign Shift_Out[47:32] = ((set[7] == 0) && (set[5] == 1) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
-assign Shift_Out[63:48] = ((set[7] == 0) && (set[5] == 1) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
-assign Shift_Out[79:64] = ((set[7] == 1) && (set[5] == 0) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
-assign Shift_Out[95:80] = ((set[7] == 1) && (set[5] == 0) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
-assign Shift_Out[111:96] = ((set[7] == 1) && (set[5] == 1) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
-assign Shift_Out[127:112] = ((set[7] == 1) && (set[5] == 1) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[15:0] = ((set[6] == 0) && (set[5] == 0) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[31:16] = ((set[6] == 0) && (set[5] == 0) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[47:32] = ((set[6] == 0) && (set[5] == 1) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[63:48] = ((set[6] == 0) && (set[5] == 1) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[79:64] = ((set[6] == 1) && (set[5] == 0) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[95:80] = ((set[6] == 1) && (set[5] == 0) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[111:96] = ((set[6] == 1) && (set[5] == 1) && (set[4] == 0)) ? Shift_Out_imm : 16'h0000;
+assign Shift_Out[127:112] = ((set[6] == 1) && (set[5] == 1) && (set[4] == 1)) ? Shift_Out_imm : 16'h0000;
 
 endmodule
