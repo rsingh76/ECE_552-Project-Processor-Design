@@ -19,8 +19,8 @@ wire [15:0] metadataOut; //1 Set = 2 blocks metadat array output
 reg hit;
 wire BlockEnable;
 wire WordEnable;
-wire BlockEnable_data_final;
-wire BlockEnable_data;
+//wire BlockEnable_data_final;
+//wire BlockEnable_data;
 reg Block_offset;
 reg Write_en_data_array;
 
@@ -112,12 +112,12 @@ case((metadataOut[14] == 1'b1) && (metadataOut[13:8] == metadataIn)) //Valid and
 endcase
 end //for starting always
 
-Shifter_128bit shifter128b(.address_in(inst_addr), .Shift_Out(BlockEnable_data));
+//Shifter_128bit shifter128b(.address_in(inst_addr), .Shift_Out(BlockEnable_data));
 
-assign BlockEnable_data_final = Block_offset ? BlockEnable_data : BlockEnable_data << 1;
+//assign BlockEnable_data_final = Block_offset ? BlockEnable_data : BlockEnable_data << 1;
 
 word_decoder wd(.addr(inst_addr[4:1]), .word_enable(WordEnable));
 
-DataArray DAH(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en_data_array), .BlockEnable(BlockEnable_data_final), .WordEnable(WordEnable), .DataOut(DataOut));
+DataArray_t DAH(.clk(clk), .rst(~rst), .Block_offset(Block_offset), .DataIn(DataIn), .Write(Write_en_data_array), .BlockEnable(BlockEnable), .WordEnable(WordEnable), .DataOut(DataOut));
 
 endmodule
