@@ -40,6 +40,7 @@ Write_en = 1'b0;
 hit = 1'b0;
 miss_inst_cache = 1'b0;
 Write_en_data_array = 1'b0;
+Block_offset = 1'b0;
 //BlockEnable_data = {;
 
 case((metadataOut[14] == 1'b1) && (metadataOut[13:8] == metadataIn)) //Valid and tag is equal //CACHE HIT OR MISS CASE
