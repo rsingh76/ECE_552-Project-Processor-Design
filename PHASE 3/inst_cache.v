@@ -1,10 +1,11 @@
 //Data and Meta-Data Array instantiations
 
-module inst_cache(clk, rst, inst_addr, Write_tag_array, metadataIn, DataIn, miss_inst_cache, DataOut);
+module inst_cache(clk, rst, inst_addr, Write_tag_array, Write_data_array, metadataIn, DataIn, miss_inst_cache, DataOut);
 input clk;
 input rst;
 input [15:0] inst_addr;
 input Write_tag_array; //Write enable to write missing entry in data_array and metadata_array
+input Write_data_array;
 input [5:0] metadataIn; //Metadata array input from PC[15:10] address - 6 Tag bits 
 input [15:0] DataIn; //Data input for data array from memory IMEM - 2 bytes (1 word)
 //input [127:0] Shift_out; //from Shifter_128bit
@@ -21,6 +22,7 @@ wire WordEnable;
 wire BlockEnable_data_final;
 wire BlockEnable_data;
 reg Block_offset;
+reg Write_en_data_array;
 
 
 //assign BlockEnable = sel ? Shift_out : Shift_Out_two;
@@ -37,6 +39,7 @@ Lru_en = 1'b0;
 Write_en = 1'b0;
 hit = 1'b0;
 miss_inst_cache = 1'b0;
+Write_en_data_array = 1'b0;
 //BlockEnable_data = {;
 
 case((metadataOut[14] == 1'b1) && (metadataOut[13:8] == metadataIn)) //Valid and tag is equal //CACHE HIT OR MISS CASE
@@ -59,6 +62,7 @@ case((metadataOut[14] == 1'b1) && (metadataOut[13:8] == metadataIn)) //Valid and
               			1'b0: begin
                                       DataIn_imm = {1'b0, 1'b1, metadataIn, 1'b1, metadataOut[6:0]};
                                       Write_en = Write_tag_array;
+                                      Write_en_data_array = Write_data_array;
                                       Lru_en = 1'b1;
                                       Block_offset = 1'b1;
                                       end
@@ -67,12 +71,14 @@ case((metadataOut[14] == 1'b1) && (metadataOut[13:8] == metadataIn)) //Valid and
                 			     1'b1: begin
                                                    DataIn_imm = {1'b0, 1'b1, metadataIn, 1'b1, metadataOut[6:0]}; // if this is lru then evict
                     		                   Write_en = Write_tag_array;
+                                                   Write_en_data_array = Write_data_array;
                                                    Lru_en = 1'b1;
                                                    Block_offset = 1'b1;
                                                    end
                 			     1'b0: begin
                                                    DataIn_imm = {1'b1, metadataOut[14:8], 1'b0, 1'b1, metadataIn}; // if this is not lru then irrespective of valid bit evict the other block
                     		                   Write_en = Write_tag_array;
+                                                   Write_en_data_array = Write_data_array;
                                                    Lru_en = 1'b1;
                                                    Block_offset = 1'b0;
                                                    end
@@ -111,6 +117,6 @@ assign BlockEnable_data_final = Block_offset ? BlockEnable_data : BlockEnable_da
 
 word_decoder wd(.addr(inst_addr[4:1]), .word_enable(WordEnable));
 
-DataArray DAH(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en), .BlockEnable(BlockEnable_data_final), .WordEnable(WordEnable), .DataOut(DataOut));
+DataArray DAH(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en_data_array), .BlockEnable(BlockEnable_data_final), .WordEnable(WordEnable), .DataOut(DataOut));
 
 endmodule
