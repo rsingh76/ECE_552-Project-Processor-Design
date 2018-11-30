@@ -254,16 +254,26 @@ wire [15:0] data_addr;
 wire [15:0] memory_address; //This is the miss address from cache controller to be used by data array of data cache
 wire [15:0] main_memory_address;
 wire [15:0] Inst_cache;
+wire write_tag_array_DM, write_tag_array_IM, write_data_array_IM, write_data_array_DM;		// for arbitration
 
 assign miss_address = miss_inst_cache ? pc : (miss_data_cache ? EX_MEM_ALUOut : 16'h0000);
 assign miss_detected = miss_data_cache | miss_inst_cache;
 assign DataIn_DA = (!miss_data_cache && EX_MEM_MemWrite) ? data_in : (miss_data_cache ? MCM_Data_Out : 16'h0000);
 assign data_addr = (!miss_data_cache) ? EX_MEM_ALUOut : memory_address;
 
-Data_cache Data_MDA_DA(.clk(clk), .rst(rst), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array), .miss_data_cache(miss_data_cache), .data_addr(data_addr), .DataOut_DA(Dmem_out));
+
+// Arbitration mechanism ///////////////////////////////////////////////////////////
+assign write_tag_array_DM = (miss_inst_cache) ? 1'b0 : write_tag_array;		////
+assign write_tag_array_IM = (miss_inst_cache) ? write_tag_array : 1'b0;		////	
+assign write_data_array_IM = (miss_inst_cache) ? write_data_array : 1'b0;	////
+assign write_data_array_DM = (miss_inst_cache) ? 1'b0 : write_data_array;	////
+////////////////////////////////////////////////////////////////////////////////////
+
+
+Data_cache Data_MDA_DA(.clk(clk), .rst(rst), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array_DM), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array_DM), .miss_data_cache(miss_data_cache), .data_addr(data_addr), .DataOut_DA(Dmem_out));
 Shifter_128bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data)); //blockenable shifter for data_cache unit
 
-inst_cache Inst_MDA_DA(.clk(clk), .rst(rst), .inst_addr(pc), .Write_tag_array(write_tag_array), .Write_data_array(write_data_array), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
+inst_cache Inst_MDA_DA(.clk(clk), .rst(rst), .inst_addr(pc), .Write_tag_array(write_tag_array_IM), .Write_data_array(write_data_array_IM), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
 assign Inst = (fsm_busy & miss_inst_cache) ? 16'h4000 : Inst_cache; //add an arbitration signal
 assign stall_data_miss = (fsm_busy & miss_data_cache); //add an arbitration signal
 
