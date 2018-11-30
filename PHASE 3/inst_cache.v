@@ -1,20 +1,20 @@
 //Data and Meta-Data Array instantiations
 
-module inst_cache(clk, rst, inst_addr, Write_tag_array, metadataIn, DataIn, Shift_out, miss_inst_cache, DataOut);
+module inst_cache(clk, rst, inst_addr, Write_tag_array, metadataIn, DataIn, miss_inst_cache, DataOut);
 input clk;
 input rst;
 input [15:0] inst_addr;
 input Write_tag_array; //Write enable to write missing entry in data_array and metadata_array
 input [5:0] metadataIn; //Metadata array input from PC[15:10] address - 6 Tag bits 
 input [15:0] DataIn; //Data input for data array from memory IMEM - 2 bytes (1 word)
-input [127:0] Shift_out; //from Shifter_128bit
+//input [127:0] Shift_out; //from Shifter_128bit
 output reg miss_inst_cache;
 output [15:0] DataOut; //16 bits data array output
 reg Lru_en;
 reg Write_en;
 reg [15:0] DataIn_imm; //LRU, Valid, Tag bits for 2 blocks = 1 Set
 wire [15:0] metadataOut; //1 Set = 2 blocks metadat array output
-wire Shift_Out_two;
+//wire Shift_Out_two;
 reg hit;
 wire BlockEnable;
 wire WordEnable;
@@ -107,7 +107,7 @@ end //for starting always
 
 Shifter_128bit shifter128b(.address_in(inst_addr), .Shift_Out(BlockEnable_data));
 
-assign BlockEnable_data_final = Block_offset ? BlockEnable_data : BlockEnable_data_final << 1;
+assign BlockEnable_data_final = Block_offset ? BlockEnable_data : BlockEnable_data << 1;
 
 word_decoder wd(.addr(inst_addr[4:1]), .word_enable(WordEnable));
 
