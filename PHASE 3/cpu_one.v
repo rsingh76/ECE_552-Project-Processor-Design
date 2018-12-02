@@ -263,10 +263,10 @@ assign data_addr = (!miss_data_cache) ? EX_MEM_ALUOut : memory_address;
 
 
 // Arbitration mechanism ///////////////////////////////////////////////////////////
-assign write_tag_array_DM = (miss_inst_cache) ? 1'b0 : write_tag_array;		////
-assign write_tag_array_IM = (miss_inst_cache) ? write_tag_array : 1'b0;		////	
-assign write_data_array_IM = (miss_inst_cache) ? write_data_array : 1'b0;	////
-assign write_data_array_DM = (miss_inst_cache) ? 1'b0 : write_data_array;	////
+assign write_tag_array_IM = (miss_data_cache) ? 1'b0 : write_tag_array;		////	
+assign write_tag_array_DM = (miss_data_cache) ? write_tag_array : 1'b0;		////
+assign write_data_array_DM = (miss_data_cache) ? write_data_array : 1'b0;	////
+assign write_data_array_IM = (miss_data_cache) ? 1'b0 : write_data_array;       ////
 ////////////////////////////////////////////////////////////////////////////////////
 
 
