@@ -21,10 +21,9 @@ localparam WAIT = 1'b1;
 wire STATE;
 reg nxt_STATE;
 reg en_cnt, clr_cnt;
-wire [3:0]cnt, inc_cnt;
+wire [3:0]cnt, inc_cnt, cnt_ff;
 wire [7:0]decoded_write_enable;
 reg WordEnable;
-
 wire mem_Write;
 //////////////////////////////////// Logic ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,13 +34,13 @@ dff state(.q(STATE), .d(nxt_STATE), .wen(1'b1), .clk(clk), .rst(~rst_n));
 // 4 bit Counter - to count number of chunks received 
 
 //assign cnt_ff = (clr_cnt) ? 4'h0 : (en_cnt) ? inc_cnt : cnt ; 
-assign cnt_ff = (clr_cnt) ? 4'h0 : inc_cnt; 
+assign cnt_ff = (clr_cnt) ? 4'h0 : inc_cnt;
 dff counter[3:0](.q(cnt), .d(cnt_ff), .wen(en_cnt|clr_cnt), .clk(clk), .rst(~rst_n));
 adder_4bit_josh chunks(.AA(cnt), .BB(4'b0001), .SS(inc_cnt), .CC());
 
 // Memory address increment //////////////////////////////////////////////////////////
 
-assign main_memory_address = 	(cnt == 4'h0) ? {{miss_address[15:4]},4'b0000} : 	// to be used when instatntitating multi cycle memory
+assign main_memory_address = 	(cnt == 4'h0) ? {{miss_address[15:4]},4'b0000} :  // to be used when instatntitating multi cycle memory
 			     	(cnt == 4'h1) ? {{miss_address[15:4]},4'b0010} : 
 			    	(cnt == 4'h2) ? {{miss_address[15:4]},4'b0100} :
 				(cnt == 4'h3) ? {{miss_address[15:4]},4'b0110} :
@@ -95,7 +94,7 @@ always @* begin
 			default : begin
 			  nxt_STATE = WAIT;
 				case (memory_data_valid)	
-				  1'b1:  begin
+				  1'b1: begin
 					write_data_array = 1'b1;		
 					en_cnt = 1'b1;
 					end

@@ -42,7 +42,7 @@ module memory4c (data_out, data_in, addr, enable, wr, clk, rst, data_valid);
    reg            loaded;
 
    assign         data_out_4 = (enable & (~wr))? {mem[addr[ADDR_WIDTH-1 :1]]}: 0; //Read
-   assign	     data_valid_4 = (enable & (~wr));
+   assign	     data_valid_4 = (!data_valid_3 && !data_valid_2 && !data_valid_1) ? (enable & (~wr)) : 1'b0;
    initial begin
       loaded = 0;
    end

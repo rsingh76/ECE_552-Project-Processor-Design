@@ -109,7 +109,7 @@ assign opcode = IF_ID_Inst[15:12];
 assign Inst_enable = (~rst_n) ? 1'b0 : 1'b1;
 
 //hlt instruction
-assign hlt_pre = (Inst[15:12] == 4'b1111);
+assign hlt_pre = (Inst[15:12] == 4'b1111) ? 1'b1 : 1'b0;
 assign hlt = MEM_WB_hlt;
 
 //Stall
@@ -257,7 +257,7 @@ wire [15:0] Inst_cache;
 wire write_tag_array_DM, write_tag_array_IM, write_data_array_IM, write_data_array_DM;		// for arbitration
 
 assign miss_address = miss_inst_cache ? pc : (miss_data_cache ? EX_MEM_ALUOut : 16'h0000);
-assign miss_detected = miss_data_cache | miss_inst_cache;
+assign miss_detected = (miss_data_cache || miss_inst_cache) ? 1'b1 : 1'b0;
 assign DataIn_DA = (!miss_data_cache && EX_MEM_MemWrite) ? data_in : (miss_data_cache ? MCM_Data_Out : 16'h0000);
 assign data_addr = (!miss_data_cache) ? EX_MEM_ALUOut : memory_address;
 
@@ -281,7 +281,7 @@ cache_fill_FSM CMC0(.clk(clk), .rst_n(rst_n), .miss_detected(miss_detected), .mi
 		.write_tag_array(write_tag_array), .main_memory_address(main_memory_address), .memory_address(memory_address), .memory_data_valid(memory_data_valid));
 
 //Multicycle memory
-memory4c MCM(.data_out(MCM_Data_Out), .data_in(data_in), .addr(main_memory_address), .enable((EX_MEM_MemRead | EX_MEM_MemWrite) & Inst_enable), .wr(EX_MEM_MemWrite & !miss_data_cache), .clk(clk), .rst(~rst), .data_valid(memory_data_valid));
+memory4c MCM(.data_out(MCM_Data_Out), .data_in(data_in), .addr(main_memory_address), .enable(EX_MEM_MemRead | EX_MEM_MemWrite | Inst_enable && miss_detected), .wr(EX_MEM_MemWrite & !miss_data_cache), .clk(clk), .rst(~rst_n), .data_valid(memory_data_valid));
 
 
 endmodule

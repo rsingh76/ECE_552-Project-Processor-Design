@@ -99,7 +99,7 @@ assign Write_en_DA = hit ? Mem_write : write_data_array;
 
 
 always @ (*) begin    //Think about default of case statements
-
+miss_data_cache = 1'b0;
  case(DataOut[14] && (DataOut[13:8] == Data_Tag))
    1'b1:  begin hit = 1'b1;
           DataIn = {1'b0, DataOut[14:8], 1'b1, DataOut[6:0]};
