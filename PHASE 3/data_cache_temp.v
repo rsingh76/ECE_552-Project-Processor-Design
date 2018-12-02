@@ -76,7 +76,7 @@ wire [127:0] BlockEnable_DA;
 wire [7:0] WordEnable_DA;
 output [15:0] DataOut_DA;
 
-MetaDataArray MDA1(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en), .BlockEnable(BlockEnable), .DataOut(DataOut));
+MetaDataArray_Data MDA1(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en), .BlockEnable(BlockEnable), .DataOut(DataOut));
 DataArray DA1(.clk(clk), .rst(~rst), .DataIn(DataIn_DA), .Write(Write_en_DA), .BlockEnable(BlockEnable_DA), .WordEnable(WordEnable_DA), .DataOut(DataOut_DA));
 
 /*
