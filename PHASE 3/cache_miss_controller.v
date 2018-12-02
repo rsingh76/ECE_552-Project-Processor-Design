@@ -36,11 +36,8 @@ dff state(.q(STATE), .d(nxt_STATE), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 //assign cnt_ff = (clr_cnt) ? 4'h0 : (en_cnt) ? inc_cnt : cnt ; 
 assign cnt_ff = (clr_cnt) ? 4'h0 : inc_cnt; 
-dff counter(.q(cnt), .d(cnt_ff), .wen(en_cnt|clr_cnt), .clk(clk), .rst(~rst_n));
-adder_4bit chunks(.AA(cnt), .BB(1'b1), .SS(inc_cnt), .CC(1'b0));
-
-
-
+dff counter[3:0](.q(cnt), .d(cnt_ff), .wen(en_cnt|clr_cnt), .clk(clk), .rst(~rst_n));
+adder_4bit_josh chunks(.AA(cnt), .BB(4'b0001), .SS(inc_cnt), .CC());
 
 // Memory address increment //////////////////////////////////////////////////////////
 

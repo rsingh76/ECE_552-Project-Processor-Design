@@ -11,7 +11,7 @@ assign Cout = (A & B) | (B & Cin) | (A & Cin);
 
 endmodule
 
-module adder_4bit(AA, BB, SS, CC);
+module adder_4bit_josh(AA, BB, SS, CC);
 
 input [3:0]AA, BB;
 
@@ -36,7 +36,7 @@ reg [7:0] stim;
 wire [3:0] Sum;
 wire Carry_Out;
 
-adder_4bit DUT (stim[3:0], stim[7:4], Sum, Carry_Out);
+adder_4bit_josh DUT (stim[3:0], stim[7:4], Sum, Carry_Out);
 
 initial begin
 	stim = 8'b0;
