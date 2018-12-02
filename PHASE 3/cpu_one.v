@@ -240,7 +240,7 @@ forwarding_unit forward(.ID_EX_Rs(ID_EX_RsAddr), .ID_EX_Rt(ID_EX_RtAddr), .MEM_W
                         .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_MemWrite(EX_MEM_MemWrite), .MEM_WB_RegWrite(MEM_WB_RegWrite), .forward_in1(forward_in1), .forward_in2(forward_in2), .forward_mem_mux(forward_mem_mux));
 
 //Phase III code
-wire [15:0] Shift_out_Data;
+wire [127:0] Shift_Out_Data;
 wire write_tag_array;
 wire memory_data_valid;
 wire write_data_array;
@@ -270,14 +270,14 @@ assign write_data_array_IM = (miss_data_cache) ? 1'b0 : write_data_array;       
 ////////////////////////////////////////////////////////////////////////////////////
 
 
-Data_cache Data_MDA_DA(.clk(clk), .rst(rst), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array_DM), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array_DM), .miss_data_cache(miss_data_cache), .data_addr(data_addr), .DataOut_DA(Dmem_out));
+Data_cache Data_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array_DM), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array_DM), .miss_data_cache(miss_data_cache), .data_addr(data_addr), .DataOut_DA(Dmem_out));
 Shifter_128bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data)); //blockenable shifter for data_cache unit
 
-inst_cache Inst_MDA_DA(.clk(clk), .rst(rst), .inst_addr(pc), .Write_tag_array(write_tag_array_IM), .Write_data_array(write_data_array_IM), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
+inst_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .inst_addr(pc), .Write_tag_array(write_tag_array_IM), .Write_data_array(write_data_array_IM), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
 assign Inst = (fsm_busy & miss_inst_cache & !miss_data_cache) ? 16'h4000 : Inst_cache; //add an arbitration signal
 assign stall_data_miss = (fsm_busy & miss_data_cache) ? 1'b1 : 1'b0; //add an arbitration signal
 
-cache_fill_FSM CMC0(.clk(clk), .rst_n(rst), .miss_detected(miss_detected), .miss_address(miss_address), .fsm_busy(fsm_busy), .write_data_array(write_data_array), 
+cache_fill_FSM CMC0(.clk(clk), .rst_n(rst_n), .miss_detected(miss_detected), .miss_address(miss_address), .fsm_busy(fsm_busy), .write_data_array(write_data_array), 
 		.write_tag_array(write_tag_array), .main_memory_address(main_memory_address), .memory_address(memory_address), .memory_data_valid(memory_data_valid));
 
 //Multicycle memory
