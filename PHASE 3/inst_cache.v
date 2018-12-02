@@ -17,8 +17,8 @@ reg [15:0] DataIn_imm; //LRU, Valid, Tag bits for 2 blocks = 1 Set
 wire [15:0] metadataOut; //1 Set = 2 blocks metadat array output
 //wire Shift_Out_two;
 reg hit;
-wire BlockEnable;
-wire WordEnable;
+wire [63:0] BlockEnable;
+wire [7:0] WordEnable;
 //wire BlockEnable_data_final;
 //wire BlockEnable_data;
 reg Block_offset;
@@ -116,7 +116,7 @@ end //for starting always
 
 //assign BlockEnable_data_final = Block_offset ? BlockEnable_data : BlockEnable_data << 1;
 
-word_decoder wd(.addr(inst_addr[4:1]), .word_enable(WordEnable));
+word_decoder wd(.addr(inst_addr[3:1]), .word_enable(WordEnable));
 
 DataArray_t DAH(.clk(clk), .rst(~rst), .Block_offset(Block_offset), .DataIn(DataIn), .Write(Write_en_data_array), .BlockEnable(BlockEnable), .WordEnable(WordEnable), .DataOut(DataOut));
 
