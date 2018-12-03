@@ -96,7 +96,6 @@ wire [15:0] SrcData1_raw;
 wire [15:0] SrcData2_raw;
 wire IF_ID_hlt;
 wire stall_data_miss;
-wire stall_inst_miss;
 wire miss_inst_cache;
 //wire IF_ID_Inst_checker;
 
@@ -117,7 +116,7 @@ assign hlt = MEM_WB_hlt;
 //assign stall = (stall_hdu | fsm_busy);
 
 //PC register
-assign pc_wen = (~rst_n || (hlt_pre & !IF_Flush) || stall || (stall_data_miss) || (stall_inst_miss)) ? 1'b0 : 1'b1; //add an arbitration signal 
+assign pc_wen = (~rst_n || (hlt_pre & !IF_Flush) || stall || (fsm_busy && miss_inst_cache) || (stall_data_miss)) ? 1'b0 : 1'b1; //add an arbitration signal 
 dflipflop_16bit program_counter(.q(pc), .d(pc_in), .wen(pc_wen), .clk(clk), .rst(~rst_n)); // 16 bit register to hold current pc value
 
 //Imem
@@ -276,7 +275,6 @@ Shifter_128bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data));
 
 inst_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .inst_addr(pc), .Write_tag_array(write_tag_array_IM), .Write_data_array(write_data_array_IM), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
 assign Inst = (fsm_busy & miss_inst_cache & !miss_data_cache) ? 16'h4000 : Inst_cache; //add an arbitration signal
-assign stall_inst_miss = fsm_busy & miss_inst_cache & !miss_data_cache;
 assign stall_data_miss = (fsm_busy & miss_data_cache) ? 1'b1 : 1'b0; //add an arbitration signal
 
 cache_fill_FSM CMC0(.clk(clk), .rst_n(rst_n), .miss_detected(miss_detected), .miss_address(miss_address), .fsm_busy(fsm_busy), .write_data_array(write_data_array), 

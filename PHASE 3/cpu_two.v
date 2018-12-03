@@ -1,4 +1,4 @@
-module cpu(clk, rst_n, hlt, pc);
+module cpu_two(clk, rst_n, hlt, pc);
 //IO ports
 input clk;
 input rst_n;
@@ -246,22 +246,24 @@ wire write_tag_array;
 wire memory_data_valid;
 wire write_data_array;
 wire miss_detected;
-wire miss_data_cache, miss_data_cache_pre;
+wire miss_data_cache;
 //wire miss_inst_cache;
 wire [15:0] miss_address;
 wire [15:0] MCM_Data_Out;
 wire [15:0] DataIn_DA;
-wire [15:0] data_addr;
+wire [15:0] data_addr, inst_addr;
 wire [15:0] memory_address; //This is the miss address from cache controller to be used by data array of data cache
 wire [15:0] main_memory_address;
 wire [15:0] Inst_cache;
 wire write_tag_array_DM, write_tag_array_IM, write_data_array_IM, write_data_array_DM;		// for arbitration
+wire miss_data_cache_pre;
+
 
 assign miss_address = miss_inst_cache ? pc : (miss_data_cache ? EX_MEM_ALUOut : 16'h0000);
 assign miss_detected = (miss_data_cache || miss_inst_cache) ? 1'b1 : 1'b0;
 assign DataIn_DA = (!miss_data_cache && EX_MEM_MemWrite) ? data_in : (miss_data_cache ? MCM_Data_Out : 16'h0000);
 assign data_addr = (!miss_data_cache) ? EX_MEM_ALUOut : memory_address;
-
+assign inst_addr = (!miss_inst_cache) ? pc : memory_address;
 
 // Arbitration mechanism ///////////////////////////////////////////////////////////
 assign write_tag_array_IM = (miss_data_cache) ? 1'b0 : write_tag_array;		////	
@@ -270,18 +272,19 @@ assign write_data_array_DM = (miss_data_cache) ? write_data_array : 1'b0;	////
 assign write_data_array_IM = (miss_data_cache) ? 1'b0 : write_data_array;       ////
 ////////////////////////////////////////////////////////////////////////////////////
 
+assign miss_data_cache = (EX_MEM_MemRead | EX_MEM_MemWrite) ? miss_data_cache_pre : 1'b0;
 
 Data_cache Data_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array_DM), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array_DM), .miss_data_cache(miss_data_cache_pre), .data_addr(data_addr), .DataOut_DA(Dmem_out));
 Shifter_128bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data)); //blockenable shifter for data_cache unit
-assign miss_data_cache = (EX_MEM_MemRead | EX_MEM_MemWrite) ? miss_data_cache_pre : 1'b0;
+
 wire [127:0] Shift_Out_Inst;
 
-Data_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(pc[15:10]), .Shift_out(Shift_Out_Inst), .write_tag_array(write_tag_array_IM), .Mem_write(1'b0), .DataIn_DA(MCM_Data_Out), .write_data_array(write_data_array_IM), .miss_data_cache(miss_inst_cache), .data_addr(pc), .DataOut_DA(Inst_cache));
+Data_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(pc[15:10]), .Shift_out(Shift_Out_Inst), .write_tag_array(write_tag_array_IM), .Mem_write(1'b0), .DataIn_DA(MCM_Data_Out), .write_data_array(write_data_array_IM), .miss_data_cache(miss_inst_cache), .data_addr(inst_addr), .DataOut_DA(Inst_cache));
 Shifter_128bit shifter1(.address_in(pc), .Shift_Out(Shift_Out_Inst)); //blockenable shifter for data_cache unit
 
 
 //inst_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .inst_addr(pc), .Write_tag_array(write_tag_array_IM), .Write_data_array(write_data_array_IM), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
-assign Inst = (fsm_busy & miss_inst_cache & !miss_data_cache) ? 16'h4000 : Inst_cache; //add an arbitration signal
+assign Inst = ((fsm_busy || write_tag_array) & miss_inst_cache & !miss_data_cache) ? 16'h4000 : Inst_cache; //add an arbitration signal
 assign stall_inst_miss = fsm_busy & miss_inst_cache & !miss_data_cache;
 assign stall_data_miss = (fsm_busy & miss_data_cache) ? 1'b1 : 1'b0; //add an arbitration signal
 

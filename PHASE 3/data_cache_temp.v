@@ -1,4 +1,3 @@
-
 //Data Array instantiations
 
 /*
@@ -15,17 +14,12 @@ wire [7:0] DataOut;
 reg hit;
 reg BlockEnable;
 //wire sel;
-
 //assign BlockEnable = sel ? Shift_out : Shift_Out_two;
 MetaDataArray MDH(.clk(clk), .rst(rst), .DataIn(DataIn_imm), .Write(Write_en), .BlockEnable(BlockEnable), .DataOut(DataOut));
-
-
 assign Shift_Out_two = Shift_out << 1;
-
 always @ (data_addr) begin
 BlockEnable = Shift_out;
 Write_en = 1'b0;
-
 case((DataOut[6] == 1'b1) && (DataOut[5:0] == DataIn[5:0])) //Valid and tag is equal
 	1'b1: begin hit = 1'b1;
 	DataIn_imm = {1'b0, 1'b1, DataIn[5:0]};
@@ -43,11 +37,8 @@ case((DataOut[6] == 1'b1) && (DataOut[5:0] == DataIn[5:0])) //Valid and tag is e
 		end
 endcase
 end //for always
-
 DataArray DA0(.clk(clk), .rst(rst), .DataIn(DataIn_DA), .Write(Write_en_DA), .BlockEnable(BlockEnable_DA), .WordEnable(WordEnable_DA), .DataOut(DataOut_DA));
-
 endmodule
-
 */
 
 //16 bit blocks
@@ -76,7 +67,7 @@ output reg miss_data_cache;
 input [15:0] DataIn_DA;
 input write_data_array;
 wire Write_en_DA;
-wire [63:0] BlockEnable_DA;;
+wire [63:0] BlockEnable_DA;
 wire [7:0] WordEnable_DA;
 output [15:0] DataOut_DA;
 
@@ -85,7 +76,6 @@ DataArray DA1(.clk(clk), .rst(~rst), .DataIn(DataIn_DA), .Write(Write_en_DA), .B
 
 /*
 assign hit = (DataOut [14] & (DataOut[13:8] == Data_Tag)) ? 2'b10 : (DataOut[6] & (DataOut[5:0] == Data_Tag)) ? 2'b01 : 2'b00;
-
 assign DataIn = (hit == 2'b10) ? {1'b0, DataOut[14:8], 1'b1, DataOut[6:0]} :
                 (hit == 2'b01) ? {1'b1, DataOut[14:8], 1'b0, DataOut[6:0]} :
                 (DataOut[14] == 0) ? {1'b0, 1'b1, Data_Tag, 1'b1, DataOut[6:0]} :
@@ -103,9 +93,11 @@ word_decoder WD1(.addr(data_addr[3:1]), .word_enable(WordEnable_DA));
 assign Write_en_DA = hit ? Mem_write : write_data_array;
 
 
-always @ (*) begin    //Think about default of case statements
+always @ (rst, data_addr, write_tag_array, write_data_array) begin    //Think about default of case statements
 miss_data_cache = 1'b0;
 offset = 1'b0;
+Write_en = 1'b0;
+hit = 1'b0;
  case(DataOut[14] && (DataOut[13:8] == Data_Tag))
    1'b1:  begin hit = 1'b1;
           DataIn = {1'b0, DataOut[14:8], 1'b1, DataOut[6:0]};
