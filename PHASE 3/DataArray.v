@@ -3,8 +3,10 @@
 //BlockEnable and WordEnable are one-hot
 //WriteEnable is one on writes and zero on reads
 
-module DataArray(input clk, input rst, input [15:0] DataIn, input Write, input [127:0] BlockEnable, input [7:0] WordEnable, output [15:0] DataOut);
-	Block blk[127:0]( .clk(clk), .rst(rst), .Din(DataIn), .WriteEnable(Write), .Enable(BlockEnable), .WordEnable(WordEnable), .Dout(DataOut));
+module DataArray(input clk, input rst, input [15:0] DataIn, input Write, input [63:0] BlockEnable, input offset, input [7:0] WordEnable, output [15:0] DataOut);
+	Block blk0[63:0]( .clk(clk), .rst(rst), .Din(DataIn), .WriteEnable(Write), .Enable(BlockEnable & !offset), .WordEnable(WordEnable), .Dout(DataOut));
+	Block blk1[63:0]( .clk(clk), .rst(rst), .Din(DataIn), .WriteEnable(Write), .Enable(BlockEnable & offset), .WordEnable(WordEnable), .Dout(DataOut));
+
 endmodule
 
 //64 byte (8 word) cache block
@@ -26,4 +28,3 @@ module DCell( input clk,  input rst, input Din, input WriteEnable, input Enable,
 	assign Dout = (Enable & ~WriteEnable) ? q:'bz;
 	dff dffd(.q(q), .d(Din), .wen(Enable & WriteEnable), .clk(clk), .rst(rst));
 endmodule
-
