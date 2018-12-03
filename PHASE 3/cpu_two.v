@@ -246,7 +246,7 @@ wire write_tag_array;
 wire memory_data_valid;
 wire write_data_array;
 wire miss_detected;
-wire miss_data_cache;
+wire miss_data_cache, miss_data_cache_pre;
 //wire miss_inst_cache;
 wire [15:0] miss_address;
 wire [15:0] MCM_Data_Out;
@@ -273,7 +273,7 @@ assign write_data_array_IM = (miss_data_cache) ? 1'b0 : write_data_array;       
 
 Data_cache Data_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array_DM), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array_DM), .miss_data_cache(miss_data_cache), .data_addr(data_addr), .DataOut_DA(Dmem_out));
 Shifter_128bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data)); //blockenable shifter for data_cache unit
-
+assign miss_data_cache = (EX_MEM_MemRead | EX_MEM_MemWrite) ? miss_data_cache : 1'b0;
 wire [127:0] Shift_Out_Inst;
 
 Data_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(pc[15:10]), .Shift_out(Shift_Out_Inst), .write_tag_array(write_tag_array_IM), .Mem_write(1'b0), .DataIn_DA(MCM_Data_Out), .write_data_array(write_data_array_IM), .miss_data_cache(miss_inst_cache), .data_addr(pc), .DataOut_DA(Inst_cache));
