@@ -241,7 +241,7 @@ forwarding_unit forward(.ID_EX_Rs(ID_EX_RsAddr), .ID_EX_Rt(ID_EX_RtAddr), .MEM_W
                         .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_MemWrite(EX_MEM_MemWrite), .MEM_WB_RegWrite(MEM_WB_RegWrite), .forward_in1(forward_in1), .forward_in2(forward_in2), .forward_mem_mux(forward_mem_mux));
 
 //Phase III code
-wire [127:0] Shift_Out_Data;
+wire [63:0] Shift_Out_Data;
 wire write_tag_array;
 wire memory_data_valid;
 wire write_data_array;
@@ -275,12 +275,12 @@ assign write_data_array_IM = (miss_data_cache) ? 1'b0 : write_data_array;       
 assign miss_data_cache = (EX_MEM_MemRead | EX_MEM_MemWrite) ? miss_data_cache_pre : 1'b0;
 
 Data_cache Data_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array_DM), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array_DM), .miss_data_cache(miss_data_cache_pre), .data_addr(data_addr), .DataOut_DA(Dmem_out));
-Shifter_128bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data)); //blockenable shifter for data_cache unit
+Shifter_64bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data)); //blockenable shifter for data_cache unit
 
-wire [127:0] Shift_Out_Inst;
+wire [63:0] Shift_Out_Inst;
 
 Data_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(pc[15:10]), .Shift_out(Shift_Out_Inst), .write_tag_array(write_tag_array_IM), .Mem_write(1'b0), .DataIn_DA(MCM_Data_Out), .write_data_array(write_data_array_IM), .miss_data_cache(miss_inst_cache), .data_addr(inst_addr), .DataOut_DA(Inst_cache));
-Shifter_128bit shifter1(.address_in(pc), .Shift_Out(Shift_Out_Inst)); //blockenable shifter for data_cache unit
+Shifter_64bit shifter1(.address_in(pc), .Shift_Out(Shift_Out_Inst)); //blockenable shifter for data_cache unit
 
 
 //inst_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .inst_addr(pc), .Write_tag_array(write_tag_array_IM), .Write_data_array(write_data_array_IM), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
