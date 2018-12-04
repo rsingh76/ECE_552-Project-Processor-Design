@@ -46,7 +46,7 @@ module Data_cache(clk, rst, Data_Tag, Shift_out, write_tag_array, Mem_write, Dat
 input clk;
 input rst;
 input [5:0] Data_Tag; //LRU, valid, tag
-input [127:0] Shift_out; //from Shifter_128bit
+input [63:0] Shift_out; //from Shifter_128bit
 input [15:0] data_addr;
 wire [63:0] BlockEnable_0; //Blockenables for Set0 and Set1 of MetaData Array
 wire [63:0] BlockEnable_1;
@@ -116,11 +116,22 @@ hit = 1'b0;
             	miss_data_cache = 1'b1;
             	Write_en = write_tag_array;
             		case(DataOut[14])  // check the valid bit of Block 1
-              			1'b0: DataIn = {1'b0, 1'b1, Data_Tag, 1'b1, DataOut[6:0]};
+              			1'b0: begin
+					DataIn = {1'b0, 1'b1, Data_Tag, 1'b1, DataOut[6:0]};
+					offset = 1'b1;
+					end
              		 	1'b1: begin
                 		     case(DataOut[15])	// check the lru if valid is 1 for block 1
-                			     1'b1: DataIn = {1'b0, 1'b1, Data_Tag, 1'b1, DataOut[6:0]};		// if this is lru then evict
-                			     1'b0: DataIn = {1'b1, DataOut[14:8], 1'b0, 1'b1, Data_Tag};	// if this is not lru then irrespective of valid bit evict the other block
+                			     1'b1: 
+						begin
+						DataIn = {1'b0, 1'b1, Data_Tag, 1'b1, DataOut[6:0]};		// if this is lru then evict
+						offset = 1'b1;
+						end
+                			     1'b0: 
+						begin
+						DataIn = {1'b1, DataOut[14:8], 1'b0, 1'b1, Data_Tag};	// if this is not lru then irrespective of valid bit evict the other block
+						offset = 1'b0;
+						end
                     			endcase
                    			end
                 endcase
