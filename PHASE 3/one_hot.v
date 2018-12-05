@@ -1,7 +1,7 @@
 //One hot 64 bit
 module Shifter_64bit(address_in, Shift_Out); //Choosing block-enable in data array
 input [15:0] address_in;
-wire [5:0] set = address_in[10:5]; //Set index bits
+wire [5:0] set = address_in[9:4]; //Set index bits
 
 output [63:0] Shift_Out; //Final one hot output
 

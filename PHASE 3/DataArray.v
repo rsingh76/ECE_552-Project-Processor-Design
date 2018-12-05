@@ -3,9 +3,9 @@
 //BlockEnable and WordEnable are one-hot
 //WriteEnable is one on writes and zero on reads
 
-module DataArray(input clk, input rst, input [15:0] DataIn, input Write, input [63:0] BlockEnable, input offset, input [7:0] WordEnable, output [15:0] DataOut);
-	Block blk0[63:0]( .clk(clk), .rst(rst), .Din(DataIn), .WriteEnable(Write), .Enable(BlockEnable & !offset), .WordEnable(WordEnable), .Dout(DataOut));
-	Block blk1[63:0]( .clk(clk), .rst(rst), .Din(DataIn), .WriteEnable(Write), .Enable(BlockEnable & offset), .WordEnable(WordEnable), .Dout(DataOut));
+module DataArray(input clk, input rst, input [15:0] DataIn, input Write, input [63:0] BlockEnable_0, input [63:0] BlockEnable_1, input offset, input [7:0] WordEnable, output [15:0] DataOut);
+	Block blk0[63:0]( .clk(clk), .rst(rst), .Din(DataIn), .WriteEnable(Write), .Enable(BlockEnable_0), .WordEnable(WordEnable), .Dout(DataOut));
+	Block blk1[63:0]( .clk(clk), .rst(rst), .Din(DataIn), .WriteEnable(Write), .Enable(BlockEnable_1), .WordEnable(WordEnable), .Dout(DataOut));
 
 endmodule
 

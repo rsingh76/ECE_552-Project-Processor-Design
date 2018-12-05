@@ -29,3 +29,4 @@ endmodule
 	wire q;
 	assign Dout = (Enable & ~(Lru_en | WriteEnable)) ? q:'bz;
 	dff dffm(.q(q), .d(Din), .wen(Enable & (Lru_en | WriteEnable)), .clk(clk), .rst(rst)
+*/

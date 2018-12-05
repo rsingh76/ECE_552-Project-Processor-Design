@@ -41,7 +41,7 @@ wire [15:0] Dmem_out;
 //wire [15:0] Dmem_in;
 wire [15:0] ALUOut;
 wire Z, N, V, flag_wen;
-
+wire write_tag_array;
 
 //Phase_2 wires
 //wire stall_hdu;
@@ -117,7 +117,7 @@ assign hlt = MEM_WB_hlt;
 //assign stall = (stall_hdu | fsm_busy);
 
 //PC register
-assign pc_wen = (~rst_n || (hlt_pre & !IF_Flush) || stall || (stall_data_miss) || (stall_inst_miss)) ? 1'b0 : 1'b1; //add an arbitration signal 
+assign pc_wen = (~rst_n || (hlt_pre & !IF_Flush) || stall || (stall_data_miss) || (stall_inst_miss) || write_tag_array) ? 1'b0 : 1'b1; //add an arbitration signal 
 dflipflop_16bit program_counter(.q(pc), .d(pc_in), .wen(pc_wen), .clk(clk), .rst(~rst_n)); // 16 bit register to hold current pc value
 
 //Imem
@@ -242,7 +242,7 @@ forwarding_unit forward(.ID_EX_Rs(ID_EX_RsAddr), .ID_EX_Rt(ID_EX_RtAddr), .MEM_W
 
 //Phase III code
 wire [63:0] Shift_Out_Data;
-wire write_tag_array;
+
 wire memory_data_valid;
 wire write_data_array;
 wire miss_detected;
@@ -262,8 +262,8 @@ wire miss_data_cache_pre;
 assign miss_address = miss_inst_cache ? pc : (miss_data_cache ? EX_MEM_ALUOut : 16'h0000);
 assign miss_detected = (miss_data_cache || miss_inst_cache) ? 1'b1 : 1'b0;
 assign DataIn_DA = (!miss_data_cache && EX_MEM_MemWrite) ? data_in : (miss_data_cache ? MCM_Data_Out : 16'h0000);
-assign data_addr = (!miss_data_cache) ? EX_MEM_ALUOut : memory_address;
-assign inst_addr = (!miss_inst_cache) ? pc : memory_address;
+assign data_addr = (!write_data_array) ? EX_MEM_ALUOut : memory_address;
+assign inst_addr = (!write_data_array) ? pc : memory_address;
 
 // Arbitration mechanism ///////////////////////////////////////////////////////////
 assign write_tag_array_IM = (miss_data_cache) ? 1'b0 : write_tag_array;		////	

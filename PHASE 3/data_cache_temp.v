@@ -68,12 +68,13 @@ output reg miss_data_cache;
 input [15:0] DataIn_DA;
 input write_data_array;
 wire Write_en_DA;
-wire [63:0] BlockEnable_DA;
+wire [63:0] BlockEnable_0_DA;
+wire [63:0] BlockEnable_1_DA;
 wire [7:0] WordEnable_DA;
 output [15:0] DataOut_DA;
 
 MetaDataArray_Data MDA1(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en), .Lru_en(Lru_en), .BlockEnable_0(BlockEnable_0), .BlockEnable_1(BlockEnable_1), .DataOut(DataOut));
-DataArray DA1(.clk(clk), .rst(~rst), .DataIn(DataIn_DA), .Write(Write_en_DA), .BlockEnable(BlockEnable_DA), .offset(offset), .WordEnable(WordEnable_DA), .DataOut(DataOut_DA));
+DataArray DA1(.clk(clk), .rst(~rst), .DataIn(DataIn_DA), .Write(Write_en_DA), .BlockEnable_0(BlockEnable_0_DA), .BlockEnable_1(BlockEnable_1_DA), .offset(offset), .WordEnable(WordEnable_DA), .DataOut(DataOut_DA));
 
 /*
 assign hit = (DataOut [14] & (DataOut[13:8] == Data_Tag)) ? 2'b10 : (DataOut[6] & (DataOut[5:0] == Data_Tag)) ? 2'b01 : 2'b00;
@@ -88,11 +89,13 @@ assign Write_en = ((hit == 2'b10) | (hit == 2'b01)) ? 1'b1 : write_tag_array;
 */
 
 //assign BlockEnable_DA = offset ? Shift_out : (Shift_out << 1);
-assign BlockEnable_DA = Shift_out;
+//assign BlockEnable_DA = Shift_out;
 //assign mem_address = hit ? data_addr : miss_address;
 word_decoder WD1(.addr(data_addr[3:1]), .word_enable(WordEnable_DA));
 assign Write_en_DA = hit ? Mem_write : write_data_array;
 
+assign BlockEnable_0_DA = offset ? 64'h0000000000000000 : Shift_out;
+assign BlockEnable_1_DA = !offset ? 64'h0000000000000000 : Shift_out;
 
 always @ (rst, data_addr, write_tag_array, write_data_array) begin    //Think about default of case statements
 miss_data_cache = 1'b0;

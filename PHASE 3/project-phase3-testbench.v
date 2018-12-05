@@ -173,7 +173,7 @@ module cpu_ptb();
    // Is processor halted (1 bit signal)
    
 //PHASE-2
-  assign Inst = DUT.Inst_cache;
+  assign Inst = DUT.Inst;
    //Instruction fetched in the current cycle
    
    assign RegWrite = DUT.MEM_WB_RegWrite;
