@@ -58,6 +58,7 @@ assign BlockEnable_0 = Shift_out;
 assign BlockEnable_1 = Shift_out;
 //assign BlockEnable = Shift_out | (Shift_out << 1);
 //wire [1:0] hit;
+reg Lru_en;
 reg hit;
 reg [15:0] DataIn;
 reg Write_en;
@@ -71,7 +72,7 @@ wire [63:0] BlockEnable_DA;
 wire [7:0] WordEnable_DA;
 output [15:0] DataOut_DA;
 
-MetaDataArray_Data MDA1(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en), .BlockEnable_0(BlockEnable_0), .BlockEnable_1(BlockEnable_1), .DataOut(DataOut));
+MetaDataArray_Data MDA1(.clk(clk), .rst(~rst), .DataIn(DataIn), .Write(Write_en), .Lru_en(Lru_en), .BlockEnable_0(BlockEnable_0), .BlockEnable_1(BlockEnable_1), .DataOut(DataOut));
 DataArray DA1(.clk(clk), .rst(~rst), .DataIn(DataIn_DA), .Write(Write_en_DA), .BlockEnable(BlockEnable_DA), .offset(offset), .WordEnable(WordEnable_DA), .DataOut(DataOut_DA));
 
 /*
@@ -96,12 +97,13 @@ assign Write_en_DA = hit ? Mem_write : write_data_array;
 always @ (rst, data_addr, write_tag_array, write_data_array) begin    //Think about default of case statements
 miss_data_cache = 1'b0;
 offset = 1'b0;
+Lru_en = 1'b0;
 Write_en = 1'b0;
 hit = 1'b0;
  case(DataOut[14] && (DataOut[13:8] == Data_Tag))
    1'b1:  begin hit = 1'b1;
           DataIn = {1'b0, DataOut[14:8], 1'b1, DataOut[6:0]};
-          Write_en = 1'b1;
+          Lru_en = 1'b1;
 	  offset = 1'b1; //Hit in Block 1
           end
    1'b0:  begin
@@ -109,7 +111,7 @@ hit = 1'b0;
             1'b1: begin 
 		hit = 1'b1;
             	DataIn = {1'b1, DataOut[14:8], 1'b0, DataOut[6:0]};
-           	Write_en = 1'b1;
+           	Lru_en = 1'b1;
 		offset = 1'b0; //Hit in Block 0
             end
             1'b0: begin
