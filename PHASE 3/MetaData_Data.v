@@ -24,9 +24,3 @@ module MCell_t( input clk,  input rst, input Din, input WriteEnable, input Enabl
 	assign Dout = (Enable & ~(WriteEnable)) ? q:'bz;
 	dff dffm(.q(q), .d(Din), .wen(Enable & (WriteEnable)), .clk(clk), .rst(rst));
 endmodule
-
-/*module MCell_lru( input clk,  input rst, input Din, input WriteEnable, input Lru_en, input Enable, output Dout);
-	wire q;
-	assign Dout = (Enable & ~(Lru_en | WriteEnable)) ? q:'bz;
-	dff dffm(.q(q), .d(Din), .wen(Enable & (Lru_en | WriteEnable)), .clk(clk), .rst(rst)
-*/

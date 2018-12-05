@@ -16,6 +16,7 @@ input memory_data_valid; // active high indicates valid data returning on memory
 localparam IDLE = 1'b0;
 localparam WAIT = 1'b1;
 
+
 /////////////////////////////////// Internal Wires ///////////////////////////////////////////////////////////////////////
 
 wire STATE;
@@ -35,7 +36,7 @@ dff state(.q(STATE), .d(nxt_STATE), .wen(1'b1), .clk(clk), .rst(~rst_n));
 
 //assign cnt_ff = (clr_cnt) ? 4'h0 : (en_cnt) ? inc_cnt : cnt ; 
 assign cnt_ff = (clr_cnt) ? 4'h0 : inc_cnt;
-dff counter[3:0](.q(cnt), .d(cnt_ff), .wen(en_cnt|clr_cnt), .clk(clk), .rst(~rst_n));
+dff counter[3:0](.q(cnt), .d(cnt_ff), .wen(en_cnt || clr_cnt || miss_detected), .clk(clk), .rst(~rst_n));
 adder_4bit_josh chunks(.AA(cnt), .BB(4'b0001), .SS(inc_cnt), .CC());
 
 // Memory address increment //////////////////////////////////////////////////////////
@@ -49,14 +50,14 @@ assign main_memory_address = 	(cnt == 4'h0) ? {{miss_address[15:4]},4'b0000} :  
 				(cnt == 4'h6) ? {{miss_address[15:4]},4'b1100} :
 				(cnt == 4'h7) ? {{miss_address[15:4]},4'b1110} : 16'h0000;
 
-assign memory_address = 	(cnt == 4'h1) ? {{miss_address[15:4]},4'b0000} : // to be used when writing to cache, passed on to other module as output
-			    	(cnt == 4'h2) ? {{miss_address[15:4]},4'b0010} :
-				(cnt == 4'h3) ? {{miss_address[15:4]},4'b0100} :
-				(cnt == 4'h4) ? {{miss_address[15:4]},4'b0110} :
-				(cnt == 4'h5) ? {{miss_address[15:4]},4'b1000} :
-				(cnt == 4'h6) ? {{miss_address[15:4]},4'b1010} :
-				(cnt == 4'h7) ? {{miss_address[15:4]},4'b1100} : 
-				(cnt == 4'h8) ? {{miss_address[15:4]},4'b1110} : 16'h0000;
+assign memory_address = 	(cnt == 4'h4) ? {{miss_address[15:4]},4'b0000} : // to be used when writing to cache, passed on to other module as output
+			    	(cnt == 4'h5) ? {{miss_address[15:4]},4'b0010} :
+				(cnt == 4'h6) ? {{miss_address[15:4]},4'b0100} :
+				(cnt == 4'h7) ? {{miss_address[15:4]},4'b0110} :
+				(cnt == 4'h8) ? {{miss_address[15:4]},4'b1000} :
+				(cnt == 4'h9) ? {{miss_address[15:4]},4'b1010} :
+				(cnt == 4'ha) ? {{miss_address[15:4]},4'b1100} : 
+				(cnt == 4'hb) ? {{miss_address[15:4]},4'b1110} : 16'h0000;
 
 
 // Combinational Logic //////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +74,7 @@ always @* begin
 		clr_cnt = 1'b1;				
 		case (miss_detected)
 		  1'b1: begin			// in case of miss detected in idle state
+			clr_cnt = 1'b0;
 			fsm_busy = 1'b1;
 			nxt_STATE = WAIT;
 			end   // for miss detected 
@@ -83,10 +85,10 @@ always @* begin
 	WAIT : begin
 		fsm_busy = 1'b1;
 		  case (cnt)
-			8: begin
+			4'hb: begin
 			  clr_cnt = 1'b1;
 			  fsm_busy = 1'b0;
-			  nxt_STATE = IDLE;
+			  nxt_STATE = IDLE ;
 			  write_tag_array = 1'b1;	
 			  write_data_array = 1'b1;
 			end
