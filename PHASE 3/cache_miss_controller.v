@@ -87,7 +87,6 @@ always @* begin
 		  case (cnt)
 			4'hb: begin
 			  clr_cnt = 1'b1;
-			  fsm_busy = 1'b0;
 			  nxt_STATE = IDLE ;
 			  write_tag_array = 1'b1;	
 			  write_data_array = 1'b1;

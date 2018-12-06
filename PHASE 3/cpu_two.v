@@ -117,7 +117,7 @@ assign hlt = MEM_WB_hlt;
 //assign stall = (stall_hdu | fsm_busy);
 
 //PC register
-assign pc_wen = (~rst_n || (hlt_pre & !IF_Flush) || stall || (stall_data_miss) || (stall_inst_miss)) ? 1'b0 : 1'b1; //add an arbitration signal 
+assign pc_wen = (~rst_n || (hlt_pre & !IF_Flush) || stall || (stall_data_miss) || (stall_inst_miss) || write_tag_array) ? 1'b0 : 1'b1; //add an arbitration signal 
 dflipflop_16bit program_counter(.q(pc), .d(pc_in), .wen(pc_wen), .clk(clk), .rst(~rst_n)); // 16 bit register to hold current pc value
 
 //Imem
@@ -259,12 +259,12 @@ wire write_tag_array_DM, write_tag_array_IM, write_data_array_IM, write_data_arr
 wire miss_data_cache_pre;
 
 
-//assign miss_address = (miss_inst_cache & !miss_data_cache) ? pc : (miss_data_cache ? EX_MEM_ALUOut : 16'h0000);
+
 assign miss_address = (miss_data_cache ? EX_MEM_ALUOut : miss_inst_cache ? pc : 16'h0000);
 assign miss_detected = (miss_data_cache || miss_inst_cache) ? 1'b1 : 1'b0;
 assign DataIn_DA = (!miss_data_cache && EX_MEM_MemWrite) ? data_in : (miss_data_cache ? MCM_Data_Out : 16'h0000);
-assign data_addr = (!write_data_array_DM) ? EX_MEM_ALUOut : memory_address;
-assign inst_addr = (!write_data_array_IM) ? pc : memory_address;
+assign data_addr = miss_data_cache ? (!write_data_array) ? EX_MEM_ALUOut : memory_address : EX_MEM_ALUOut;
+assign inst_addr = (miss_inst_cache) ? (!write_data_array) ? pc : memory_address : pc;
 
 // Arbitration mechanism ///////////////////////////////////////////////////////////
 assign write_tag_array_IM = (miss_data_cache) ? 1'b0 : write_tag_array;		////	
@@ -273,7 +273,7 @@ assign write_data_array_DM = (miss_data_cache) ? write_data_array : 1'b0;	////
 assign write_data_array_IM = (miss_data_cache) ? 1'b0 : write_data_array;       ////
 ////////////////////////////////////////////////////////////////////////////////////
 
-assign miss_data_cache = (EX_MEM_MemRead | EX_MEM_MemWrite) ? miss_data_cache_pre : 1'b0;
+assign miss_data_cache = (Inst != 16'h4000) ? (EX_MEM_MemRead | EX_MEM_MemWrite) ? miss_data_cache_pre : 1'b0 : 1'b0;
 
 Data_cache Data_MDA_DA(.clk(clk), .rst(rst_n), .Data_Tag(EX_MEM_ALUOut[15:10]), .Shift_out(Shift_Out_Data), .write_tag_array(write_tag_array_DM), .Mem_write(EX_MEM_MemWrite), .DataIn_DA(DataIn_DA), .write_data_array(write_data_array_DM), .miss_data_cache(miss_data_cache_pre), .data_addr(data_addr), .DataOut_DA(Dmem_out));
 Shifter_64bit shifter0(.address_in(EX_MEM_ALUOut), .Shift_Out(Shift_Out_Data)); //blockenable shifter for data_cache unit
@@ -285,9 +285,9 @@ Shifter_64bit shifter1(.address_in(pc), .Shift_Out(Shift_Out_Inst)); //blockenab
 
 
 //inst_cache Inst_MDA_DA(.clk(clk), .rst(rst_n), .inst_addr(pc), .Write_tag_array(write_tag_array_IM), .Write_data_array(write_data_array_IM), .metadataIn(pc[15:10]), .DataIn(MCM_Data_Out), .miss_inst_cache(miss_inst_cache), .DataOut(Inst_cache));
-assign Inst = (miss_inst_cache) ? 16'h4000 : Inst_cache; //add an arbitration signal
-assign stall_inst_miss = miss_inst_cache & !miss_data_cache;
-assign stall_data_miss = (miss_data_cache) ? 1'b1 : 1'b0; //add an arbitration signal
+assign Inst = ((fsm_busy || write_tag_array) & miss_inst_cache & !miss_data_cache) ? 16'h4000 : Inst_cache; //add an arbitration signal
+assign stall_inst_miss = fsm_busy & miss_inst_cache & !miss_data_cache;
+assign stall_data_miss = (fsm_busy & miss_data_cache_pre) ? 1'b1 : 1'b0; 
 
 cache_fill_FSM CMC0(.clk(clk), .rst_n(rst_n), .miss_detected(miss_detected) , .miss_address(miss_address), .fsm_busy(fsm_busy), .write_data_array(write_data_array), 
 		.write_tag_array(write_tag_array), .main_memory_address(main_memory_address), .memory_address(memory_address), .memory_data_valid(memory_data_valid));
