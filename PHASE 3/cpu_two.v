@@ -289,11 +289,11 @@ assign Inst = ((fsm_busy || write_tag_array) & miss_inst_cache & !miss_data_cach
 assign stall_inst_miss = fsm_busy & miss_inst_cache & !miss_data_cache;
 assign stall_data_miss = (fsm_busy & miss_data_cache_pre) ? 1'b1 : 1'b0; 
 
-cache_fill_FSM CMC0(.clk(clk), .rst_n(rst_n), .miss_detected(miss_detected) , .miss_address(miss_address), .fsm_busy(fsm_busy), .write_data_array(write_data_array), 
+cache_fill_FSM CMC0(.clk(clk), .rst_n(rst_n), .miss_detected(miss_detected) , .miss_address(miss_address), .fsm_busy(fsm_busy), .write_data_array(write_data_array), .Write_addr(data_addr),
 		.write_tag_array(write_tag_array), .main_memory_address(main_memory_address), .memory_address(memory_address), .memory_data_valid(memory_data_valid));
 
 //Multicycle memory
-memory4c MCM(.data_out(MCM_Data_Out), .data_in(data_in), .addr(main_memory_address), .enable(EX_MEM_MemRead | EX_MEM_MemWrite | Inst_enable && miss_detected), .wr(EX_MEM_MemWrite & !miss_data_cache), .clk(clk), .rst(~rst_n), .data_valid(memory_data_valid));
+memory4c MCM(.data_out(MCM_Data_Out), .data_in(data_in), .addr(main_memory_address), .enable(EX_MEM_MemRead || EX_MEM_MemWrite || (Inst_enable && miss_detected)), .wr(EX_MEM_MemWrite && !miss_data_cache), .clk(clk), .rst(~rst_n), .data_valid(memory_data_valid));
 
 
 endmodule

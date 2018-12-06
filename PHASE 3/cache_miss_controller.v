@@ -1,4 +1,4 @@
-module cache_fill_FSM(clk, rst_n, miss_detected, miss_address, fsm_busy, write_data_array, 
+module cache_fill_FSM(clk, rst_n, miss_detected, miss_address, fsm_busy, write_data_array, Write_addr, 
 			write_tag_array,main_memory_address, memory_address, memory_data_valid);
 
 input clk, rst_n;
@@ -10,6 +10,7 @@ output reg write_tag_array; // write enable to cache tag array to signal when al
 output [15:0] main_memory_address; // address to read from memory
 output [15:0] memory_address; // cache address to write the data from memory
 input memory_data_valid; // active high indicates valid data returning on memory bus
+input [15:0]Write_addr;
 
 ///////////////////////////////////Local parameters for state machine ////////////////////////////////////////////////////
 
@@ -41,14 +42,14 @@ adder_4bit_josh chunks(.AA(cnt), .BB(4'b0001), .SS(inc_cnt), .CC());
 
 // Memory address increment //////////////////////////////////////////////////////////
 
-assign main_memory_address = 	(cnt == 4'h0) ? {{miss_address[15:4]},4'b0000} :  // to be used when instatntitating multi cycle memory
+assign main_memory_address = 	(miss_detected) ? (cnt == 4'h0) ? {{miss_address[15:4]},4'b0000} :  // to be used when instatntitating multi cycle memory
 			     	(cnt == 4'h1) ? {{miss_address[15:4]},4'b0010} : 
 			    	(cnt == 4'h2) ? {{miss_address[15:4]},4'b0100} :
 				(cnt == 4'h3) ? {{miss_address[15:4]},4'b0110} :
 				(cnt == 4'h4) ? {{miss_address[15:4]},4'b1000} :
 				(cnt == 4'h5) ? {{miss_address[15:4]},4'b1010} :
 				(cnt == 4'h6) ? {{miss_address[15:4]},4'b1100} :
-				(cnt == 4'h7) ? {{miss_address[15:4]},4'b1110} : 16'h0000;
+				(cnt == 4'h7) ? {{miss_address[15:4]},4'b1110} : 16'h0000 : Write_addr;
 
 assign memory_address = 	(cnt == 4'h4) ? {{miss_address[15:4]},4'b0000} : // to be used when writing to cache, passed on to other module as output
 			    	(cnt == 4'h5) ? {{miss_address[15:4]},4'b0010} :
