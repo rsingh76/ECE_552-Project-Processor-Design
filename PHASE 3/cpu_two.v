@@ -293,7 +293,7 @@ cache_fill_FSM CMC0(.clk(clk), .rst_n(rst_n), .miss_detected(miss_detected) , .m
 		.write_tag_array(write_tag_array), .main_memory_address(main_memory_address), .memory_address(memory_address), .memory_data_valid(memory_data_valid));
 
 //Multicycle memory
-memory4c MCM(.data_out(MCM_Data_Out), .data_in(data_in), .addr(main_memory_address), .enable(EX_MEM_MemRead || EX_MEM_MemWrite || (Inst_enable && miss_detected)), .wr(EX_MEM_MemWrite && !miss_data_cache), .clk(clk), .rst(~rst_n), .data_valid(memory_data_valid));
+memory4c MCM(.data_out(MCM_Data_Out), .data_in(data_in), .addr(main_memory_address), .enable(EX_MEM_MemRead || EX_MEM_MemWrite || (Inst_enable && miss_detected && !write_tag_array)), .wr(EX_MEM_MemWrite && !miss_data_cache), .clk(clk), .rst(~rst_n), .data_valid(memory_data_valid));
 
 
 endmodule
