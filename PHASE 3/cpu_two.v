@@ -99,6 +99,7 @@ wire stall_data_miss;
 wire stall_inst_miss;
 wire miss_inst_cache;
 //wire IF_ID_Inst_checker;
+wire [15:0]MemData;
 
 //Opcode assignment
 assign opcode = IF_ID_Inst[15:12];
@@ -176,6 +177,7 @@ assign MemRead = (opcode == 4'b1000) ? 1'b1 : 1'b0; //1'b1 for LW
 assign MemtoReg =  (opcode == 4'b1000) ? 1'b1 : 1'b0; //1'b1 for LW, similar to MemRead
 
 //Dmem
+assign MemData =  (forward_in2 == 2'b01) ? DstData : ID_EX_SrcData2;
 assign data_in = (forward_mem_mux) ? DstData : EX_MEM_MemData ;
 //data_memory1c DMEM(.data_out(Dmem_out), .data_in(data_in), .addr(EX_MEM_ALUOut), .enable(EX_MEM_MemRead | EX_MEM_MemWrite), .wr(EX_MEM_MemWrite), .clk(clk), .rst(~rst_n));
 
@@ -227,7 +229,7 @@ IF_ID Init1(.clk(clk), .rst_n(rst_n), .Inst(Inst), .pc(next_pc), .IF_Flush(IF_Fl
 ID_EX Init2(.clk(clk), .rst_n(rst_n), .stall_data_miss(stall_data_miss), .opcode(opcode), .SrcData1(SrcData1), .SrcData2(SrcData2), .imm_4bit(imm_4bit), .sign_extend(sign_extend), .SrcReg1(SrcReg1), .SrcReg2(SrcReg2), .DstReg(DstReg), .ID_Flush(ID_Flush), .RegWrite(RegWrite), .MemRead(MemRead), .MemWrite(MemWrite), .MemtoReg(MemtoReg), .IF_ID_next_pc(IF_ID_next_pc), .flag_br_checker(flag_br_checker), .IF_ID_hlt(IF_ID_hlt) , 
 .ID_EX_RegWrite(ID_EX_RegWrite), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_MemWrite(ID_EX_MemWrite), .ID_EX_MemtoReg(ID_EX_MemtoReg), .ID_EX_RegVal1(ID_EX_SrcData1), .ID_EX_RegVal2(ID_EX_SrcData2), .ID_EX_sign_extend(ID_EX_sign_extend), .ID_EX_RsAddr(ID_EX_RsAddr), .ID_EX_RtAddr(ID_EX_RtAddr), .ID_EX_RdAddr(ID_EX_RdAddr), .ID_EX_imm_4bit(ID_EX_imm_4bit), .ID_EX_opcode(ID_EX_opcode), .ID_EX_next_pc(ID_EX_next_pc), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .ID_EX_hlt(ID_EX_hlt));
 
-EX_MEM Init3(.clk(clk), .rst_n(rst_n), .stall_data_miss(stall_data_miss), .ID_EX_RegWrite(ID_EX_RegWrite), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_MemWrite(ID_EX_MemWrite), .ID_EX_MemtoReg(ID_EX_MemtoReg), .ALUOut(EX_MEM_ALUIn), .ID_EX_RdAddr(ID_EX_RdAddr), .MemData(ID_EX_SrcData2), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .flag_wen(flag_wen), .flags_in(flags_in), .ID_EX_hlt(ID_EX_hlt),
+EX_MEM Init3(.clk(clk), .rst_n(rst_n), .stall_data_miss(stall_data_miss), .ID_EX_RegWrite(ID_EX_RegWrite), .ID_EX_MemRead(ID_EX_MemRead), .ID_EX_MemWrite(ID_EX_MemWrite), .ID_EX_MemtoReg(ID_EX_MemtoReg), .ALUOut(EX_MEM_ALUIn), .ID_EX_RdAddr(ID_EX_RdAddr), .MemData(MemData), .ID_EX_flag_br_checker(ID_EX_flag_br_checker), .flag_wen(flag_wen), .flags_in(flags_in), .ID_EX_hlt(ID_EX_hlt),
 .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_MemRead(EX_MEM_MemRead), .EX_MEM_MemWrite(EX_MEM_MemWrite), .EX_MEM_MemtoReg(EX_MEM_MemtoReg), .EX_MEM_MemData(EX_MEM_MemData), .EX_MEM_RdAddr(EX_MEM_RdAddr), .EX_MEM_ALUOut(EX_MEM_ALUOut), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker), .EX_MEM_flags(EX_MEM_flags), .EX_MEM_hlt(EX_MEM_hlt));
 
 MEM_WB Init4(.clk(clk), .rst_n(rst_n), .stall_data_miss(stall_data_miss), .EX_MEM_RegWrite(EX_MEM_RegWrite), .EX_MEM_MemtoReg(EX_MEM_MemtoReg), .EX_MEM_ALUOut(EX_MEM_ALUOut), .Dmem_out(Dmem_out), .EX_MEM_RdAddr(EX_MEM_RdAddr), .EX_MEM_flags(EX_MEM_flags), .EX_MEM_hlt(EX_MEM_hlt), .EX_MEM_flag_br_checker(EX_MEM_flag_br_checker),
@@ -263,8 +265,8 @@ wire miss_data_cache_pre;
 assign miss_address = (miss_data_cache ? EX_MEM_ALUOut : miss_inst_cache ? pc : 16'h0000);
 assign miss_detected = (miss_data_cache || miss_inst_cache) ? 1'b1 : 1'b0;
 assign DataIn_DA = (!miss_data_cache && EX_MEM_MemWrite) ? data_in : (miss_data_cache ? MCM_Data_Out : 16'h0000);
-assign data_addr = miss_data_cache ? (!write_data_array) ? EX_MEM_ALUOut : memory_address : EX_MEM_ALUOut;
-assign inst_addr = (miss_inst_cache) ? (!write_data_array) ? pc : memory_address : pc;
+assign data_addr = !write_data_array_DM ? EX_MEM_ALUOut : memory_address;
+assign inst_addr = (!miss_inst_cache) ? pc : memory_address;
 
 // Arbitration mechanism ///////////////////////////////////////////////////////////
 assign write_tag_array_IM = (miss_data_cache) ? 1'b0 : write_tag_array;		////	
