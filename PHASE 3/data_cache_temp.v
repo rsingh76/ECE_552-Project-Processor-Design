@@ -97,7 +97,7 @@ assign Write_en_DA = hit ? Mem_write : write_data_array;
 assign BlockEnable_0_DA = offset ? 64'h0000000000000000 : Shift_out;
 assign BlockEnable_1_DA = !offset ? 64'h0000000000000000 : Shift_out;
 
-always @ (rst, data_addr, write_tag_array, write_data_array) begin    //Think about default of case statements
+always @ (rst, data_addr, write_tag_array, write_data_array, Mem_write, BlockEnable_1_DA, BlockEnable_0_DA, Shift_out) begin    //Think about default of case statements
 miss_data_cache = 1'b0;
 offset = 1'b0;
 Lru_en = 1'b0;
@@ -116,6 +116,7 @@ hit = 1'b0;
             	DataIn = {1'b1, DataOut[14:8], 1'b0, DataOut[6:0]};
            	Lru_en = 1'b1;
 		offset = 1'b0; //Hit in Block 0
+                
             end
             1'b0: begin
             	miss_data_cache = 1'b1;
@@ -131,6 +132,7 @@ hit = 1'b0;
 						begin
 						DataIn = {1'b0, 1'b1, Data_Tag, 1'b1, DataOut[6:0]};		// if this is lru then evict
 						offset = 1'b1;
+						
 						end
                 			     1'b0: 
 						begin

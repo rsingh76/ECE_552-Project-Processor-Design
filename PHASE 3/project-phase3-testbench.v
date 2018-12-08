@@ -195,7 +195,7 @@ module cpu_ptb();
    assign MemAddress = DUT.EX_MEM_ALUOut;
    // If there's a memory access this cycle, this should hold the address to access memory with (for both reads and writes to memory, 16 bits)
    
-   assign MemDataIn = DUT.data_in;
+   assign MemDataIn = DUT.DataIn_DA;
    // If there's a memory write in this cycle, this is the Data being written to memory (16 bits)
    
    assign MemDataOut = DUT.Dmem_out;
