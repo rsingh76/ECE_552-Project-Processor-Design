@@ -52,16 +52,16 @@ Lru_en = 1'b0;
 Write_en = 1'b0;
 hit = 1'b0;
 cache_error = 1'b0;
- case({DataOut[37],(DataOut[36:30] == Data_Tag)})
-   2'b11: begin hit = 1'b1;
-          Lru_en = 1'b1;
-	  offset = 2'b11; //Hit in Block 11
-	  DataIn[39:38] = 2'b00; //Hit block LRU = 00
-	  if(DataOut[29:28] < DataOut[39:38]) DataIn[29:28] = DataOut[29:28] + 1'b1;
-	  if(DataOut[19:18] < DataOut[39:38]) DataIn[19:18] = DataOut[19:18] + 1'b1;
-	  if(DataOut[9:8] < DataOut[39:38]) DataIn[9:8] = DataOut[9:8] + 1'b1;
-          end
-   2'b10:  begin
+ casex({DataOut[37],(DataOut[36:30] == Data_Tag), DataOut[27], (DataOut[26:20] == Data_Tag), DataOut[17], (DataOut[16:10] == Data_Tag),DataOut[7], (DataOut[6:0] == Data_Tag)})
+   8'b11xxxxxx: begin hit = 1'b1;
+          	Lru_en = 1'b1;
+	  	offset = 2'b11; //Hit in Block 11
+	 	 DataIn[39:38] = 2'b00; //Hit block LRU = 00
+	  	if(DataOut[29:28] < DataOut[39:38]) DataIn[29:28] = DataOut[29:28] + 1'b1;
+	 	if(DataOut[19:18] < DataOut[39:38]) DataIn[19:18] = DataOut[19:18] + 1'b1;
+	  	if(DataOut[9:8] < DataOut[39:38]) DataIn[9:8] = DataOut[9:8] + 1'b1;
+          	end
+   8'bxx11xxxx:  begin
          	if(DataOut[27] && (DataOut[26:20] == Data_Tag))
          	begin 
 		hit = 1'b1;
@@ -73,7 +73,7 @@ cache_error = 1'b0;
 	  	if(DataOut[9:8] < DataOut[29:28]) DataIn[9:8] = DataOut[9:8] + 1'b1;
             	end
 		end
-    2'b01: begin
+    8'bxxxx11xx: begin
 		if(DataOut[17] && (DataOut[16:10] == Data_Tag))
 		begin
 		hit = 1'b1;
@@ -85,7 +85,7 @@ cache_error = 1'b0;
 	  	if(DataOut[9:8] < DataOut[19:18]) DataIn[9:8] = DataOut[9:8] + 1'b1;
 		end
 		end
-     2'b00: begin
+     8'bxxxxxx11: begin
 		if(DataOut[7] && (DataOut[6:0] == Data_Tag))
 		begin
 		hit = 1'b1;
