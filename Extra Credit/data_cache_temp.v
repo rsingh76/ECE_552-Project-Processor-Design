@@ -108,6 +108,7 @@ cache_error = 1'b0;
 		DataIn[29:28] = DataOut[29:28] + 1'b1;
 		DataIn[19:18] = DataOut[19:18] + 1'b1;
 		DataIn[9:8] = DataOut[9:8] + 1'b1;
+		DataIn[36:30] = Data_Tag;
 		end
 	4'b10xx: //Replace 10
 		begin
@@ -115,6 +116,7 @@ cache_error = 1'b0;
 		DataIn[39:38] = DataOut[39:38] + 1'b1;
 		DataIn[19:18] = DataOut[19:18] + 1'b1;
 		DataIn[9:8] = DataOut[9:8] + 1'b1;
+		DataIn[26:20] = Data_Tag;
 		end
 	4'b110x: //Replace 01
 		begin
@@ -122,6 +124,7 @@ cache_error = 1'b0;
 		DataIn[39:38] = DataOut[39:38] + 1'b1;
 		DataIn[29:28] = DataOut[29:28] + 1'b1;
 		DataIn[9:8] = DataOut[9:8] + 1'b1;
+		DataIn[16:10] = Data_Tag;
 		end
 	4'b1110: //Replace 00
 		begin
@@ -129,6 +132,7 @@ cache_error = 1'b0;
 		DataIn[39:38] = DataOut[39:38] + 1'b1;
 		DataIn[29:28] = DataOut[29:28] + 1'b1;
 		DataIn[19:18] = DataOut[19:18] + 1'b1;
+		DataIn[6:0] = Data_Tag;
 		end
 	4'b1111: //Check LRUs
 		casex({DataOut[39:38],DataOut[29:28], DataOut[19:18], DataOut[9:8]})
@@ -138,6 +142,7 @@ cache_error = 1'b0;
 			DataIn[29:28] = DataOut[29:28] + 1'b1;
 			DataIn[19:18] = DataOut[19:18] + 1'b1;
 			DataIn[9:8] = DataOut[9:8] + 1'b1;
+			DataIn[36:30] = Data_Tag;
 			end
 		8'bxx11xxxx: //Replace 10
 			begin
@@ -145,6 +150,7 @@ cache_error = 1'b0;
 			DataIn[39:38] = DataOut[39:38] + 1'b1;
 			DataIn[19:18] = DataOut[19:18] + 1'b1;
 			DataIn[9:8] = DataOut[9:8] + 1'b1;
+			DataIn[26:20] = Data_Tag;
 			end
 		8'bxxxx11xx: //Replace 01
 			begin
@@ -152,6 +158,7 @@ cache_error = 1'b0;
 			DataIn[39:38] = DataOut[39:38] + 1'b1;
 			DataIn[29:28] = DataOut[29:28] + 1'b1;
 			DataIn[9:8] = DataOut[9:8] + 1'b1;
+			DataIn[16:10] = Data_Tag;
 			end
 		8'bxxxxxx11: //Replace 00
 			begin
@@ -159,6 +166,7 @@ cache_error = 1'b0;
 			DataIn[39:38] = DataOut[39:38] + 1'b1;
 			DataIn[29:28] = DataOut[29:28] + 1'b1;
 			DataIn[19:18] = DataOut[19:18] + 1'b1;
+			DataIn[6:0] = Data_Tag;
 			end
 		default: cache_error = 1'b1;
 		endcase
